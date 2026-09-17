@@ -1,0 +1,43 @@
+# --- Python ---
+.venv/
+venv/
+__pycache__/
+*.pyc
+*.egg-info/
+build/
+dist/
+
+# --- Tool caches ---
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.coverage
+coverage.xml
+htmlcov/
+
+# --- Runtime output: raw AWS responses and generated reports. Never commit. ---
+evidence/
+output/
+
+# --- Terraform ---
+*.tfstate
+*.tfstate.backup
+.terraform/
+*.tfvars
+*.tfvars.json
+# NOTE: .terraform.lock.hcl is deliberately NOT ignored — it pins provider
+# versions and belongs in the repo.
+
+# --- Secrets and local data ---
+.env
+*.pem
+credentials
+# CSVs downloaded to the project root (e.g. IAM access-key exports).
+# Leading slash = root only, so docs/source/*.csv stays tracked.
+/*.csv
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+.idea/
+.vscode/

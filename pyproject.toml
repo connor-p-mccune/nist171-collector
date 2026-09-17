@@ -1,0 +1,32 @@
+[build-system]
+requires = ["setuptools>=68"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "nist171-collector"
+description = "Partial automated assessment of an AWS account against NIST SP 800-171 Rev 2 (AC, AU, IA families)."
+readme = "README.md"
+requires-python = ">=3.12"
+dynamic = ["version"]
+dependencies = [
+    "boto3>=1.43",
+    "PyYAML>=6.0",
+    "Jinja2>=3.1",
+    "click>=8.5",
+    "rich>=15.0",
+]
+
+[project.scripts]
+nist171 = "nist171.cli:main"
+
+[tool.setuptools]
+package-dir = { "" = "src" }
+
+[tool.setuptools.dynamic]
+version = { attr = "nist171.__version__" }
+
+[tool.setuptools.packages.find]
+where = ["src"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

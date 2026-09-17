@@ -1,0 +1,7 @@
+# Runtime dependencies — pinned to exact versions for reproducible installs.
+# Verified current on PyPI 2026-09-15.
+boto3==1.43.94
+PyYAML==6.0.3
+Jinja2==3.1.6
+click==8.5.0
+rich==15.0.0
