@@ -1,0 +1,553 @@
+# NIST SP 800-171A assessment objectives for the 42 in-scope requirements
+#
+# Source: docs/source/sp800-171a.pdf (NIST SP 800-171A, Assessing Security
+# Requirements for Controlled Unclassified Information).
+#
+# Each objective is one lettered statement completing 'Determine if:' in the
+# source document. Checks cite these ids so a finding points at the specific
+# thing an assessor would look for, not just the requirement as a whole.
+#
+# NOTE: 3.5.4, 3.5.9 and 3.5.11 have a single unlettered objective in 800-171A.
+# They are recorded under the bare requirement id (no letter suffix) rather than
+# inventing a '[a]' the source document does not use.
+
+metadata:
+  source: "NIST SP 800-171A"
+  in_scope_requirements: 42
+  objective_count: 124
+
+objectives:
+
+  # 3.1.1
+  - id: "3.1.1[a]"
+    control_id: "3.1.1"
+    text: "authorized users are identified."
+  - id: "3.1.1[b]"
+    control_id: "3.1.1"
+    text: "processes acting on behalf of authorized users are identified."
+  - id: "3.1.1[c]"
+    control_id: "3.1.1"
+    text: "devices (and other systems) authorized to connect to the system are identified."
+  - id: "3.1.1[d]"
+    control_id: "3.1.1"
+    text: "system access is limited to authorized users."
+  - id: "3.1.1[e]"
+    control_id: "3.1.1"
+    text: "system access is limited to processes acting on behalf of authorized users."
+  - id: "3.1.1[f]"
+    control_id: "3.1.1"
+    text: "system access is limited to authorized devices (including other systems)."
+
+  # 3.1.2
+  - id: "3.1.2[a]"
+    control_id: "3.1.2"
+    text: >-
+      the types of transactions and functions that authorized users are permitted to execute
+      are defined.
+  - id: "3.1.2[b]"
+    control_id: "3.1.2"
+    text: >-
+      system access is limited to the defined types of transactions and functions for
+      authorized users.
+
+  # 3.1.3
+  - id: "3.1.3[a]"
+    control_id: "3.1.3"
+    text: "information flow control policies are defined."
+  - id: "3.1.3[b]"
+    control_id: "3.1.3"
+    text: "methods and enforcement mechanisms for controlling the flow of CUI are defined."
+  - id: "3.1.3[c]"
+    control_id: "3.1.3"
+    text: >-
+      designated sources and destinations (e.g., networks, individuals, and devices) for CUI
+      within the system and between interconnected systems are identified.
+  - id: "3.1.3[d]"
+    control_id: "3.1.3"
+    text: "authorizations for controlling the flow of CUI are defined."
+  - id: "3.1.3[e]"
+    control_id: "3.1.3"
+    text: "approved authorizations for controlling the flow of CUI are enforced."
+
+  # 3.1.4
+  - id: "3.1.4[a]"
+    control_id: "3.1.4"
+    text: "the duties of individuals requiring separation are defined."
+  - id: "3.1.4[b]"
+    control_id: "3.1.4"
+    text: >-
+      responsibilities for duties that require separation are assigned to separate
+      individuals.
+  - id: "3.1.4[c]"
+    control_id: "3.1.4"
+    text: >-
+      access privileges that enable individuals to exercise the duties that require separation
+      are granted to separate individuals.
+
+  # 3.1.5
+  - id: "3.1.5[a]"
+    control_id: "3.1.5"
+    text: "privileged accounts are identified."
+  - id: "3.1.5[b]"
+    control_id: "3.1.5"
+    text: >-
+      access to privileged accounts is authorized in accordance with the principle of least
+      privilege.
+  - id: "3.1.5[c]"
+    control_id: "3.1.5"
+    text: "security functions are identified."
+  - id: "3.1.5[d]"
+    control_id: "3.1.5"
+    text: "access to security functions is authorized in accordance with the principle of"
+
+  # 3.1.6
+  - id: "3.1.6[a]"
+    control_id: "3.1.6"
+    text: "nonsecurity functions are identified."
+  - id: "3.1.6[b]"
+    control_id: "3.1.6"
+    text: >-
+      users are required to use non-privileged accounts or roles when accessing nonsecurity
+      functions.
+
+  # 3.1.7
+  - id: "3.1.7[a]"
+    control_id: "3.1.7"
+    text: "privileged functions are defined."
+  - id: "3.1.7[b]"
+    control_id: "3.1.7"
+    text: "non-privileged users are defined."
+  - id: "3.1.7[c]"
+    control_id: "3.1.7"
+    text: "non-privileged users are prevented from executing privileged functions."
+  - id: "3.1.7[d]"
+    control_id: "3.1.7"
+    text: "the execution of privileged functions is captured in audit logs."
+
+  # 3.1.8
+  - id: "3.1.8[a]"
+    control_id: "3.1.8"
+    text: "the means of limiting unsuccessful logon attempts is defined."
+  - id: "3.1.8[b]"
+    control_id: "3.1.8"
+    text: "the defined means of limiting unsuccessful logon attempts is implemented."
+
+  # 3.1.9
+  - id: "3.1.9[a]"
+    control_id: "3.1.9"
+    text: >-
+      privacy and security notices required by CUI-specified rules are identified, consistent,
+      and associated with the specific CUI category.
+  - id: "3.1.9[b]"
+    control_id: "3.1.9"
+    text: "privacy and security notices are displayed."
+
+  # 3.1.10
+  - id: "3.1.10[a]"
+    control_id: "3.1.10"
+    text: "the period of inactivity after which the system initiates a session lock is defined."
+  - id: "3.1.10[b]"
+    control_id: "3.1.10"
+    text: >-
+      access to the system and viewing of data is prevented by initiating a session lock after
+      the defined period of inactivity.
+  - id: "3.1.10[c]"
+    control_id: "3.1.10"
+    text: >-
+      previously visible information is concealed via a pattern-hiding display after the
+      defined period of inactivity.
+
+  # 3.1.11
+  - id: "3.1.11[a]"
+    control_id: "3.1.11"
+    text: "conditions requiring a user session to terminate are defined."
+  - id: "3.1.11[b]"
+    control_id: "3.1.11"
+    text: "a user session is automatically terminated after any of the defined conditions occur."
+
+  # 3.1.12
+  - id: "3.1.12[a]"
+    control_id: "3.1.12"
+    text: >-
+      remote access sessions are permitted. the types of permitted remote access are
+      identified.
+  - id: "3.1.12[b]"
+    control_id: "3.1.12"
+    text: "the types of permitted remote access are identified."
+  - id: "3.1.12[c]"
+    control_id: "3.1.12"
+    text: "remote access sessions are controlled."
+  - id: "3.1.12[d]"
+    control_id: "3.1.12"
+    text: "remote access sessions are monitored."
+
+  # 3.1.13
+  - id: "3.1.13[a]"
+    control_id: "3.1.13"
+    text: >-
+      cryptographic mechanisms to protect the confidentiality of remote access sessions are
+      identified.
+  - id: "3.1.13[b]"
+    control_id: "3.1.13"
+    text: >-
+      cryptographic mechanisms to protect the confidentiality of remote access sessions are
+      implemented.
+
+  # 3.1.14
+  - id: "3.1.14[a]"
+    control_id: "3.1.14"
+    text: "managed access control points are identified and implemented."
+  - id: "3.1.14[b]"
+    control_id: "3.1.14"
+    text: "remote access is routed through managed network access control points."
+
+  # 3.1.15
+  - id: "3.1.15[a]"
+    control_id: "3.1.15"
+    text: "privileged commands authorized for remote execution are identified."
+  - id: "3.1.15[b]"
+    control_id: "3.1.15"
+    text: "security-relevant information authorized to be accessed remotely is identified."
+  - id: "3.1.15[c]"
+    control_id: "3.1.15"
+    text: "the execution of the identified privileged commands via remote access is authorized."
+  - id: "3.1.15[d]"
+    control_id: "3.1.15"
+    text: "access to the identified security-relevant information via remote access is authorized."
+
+  # 3.1.16
+  - id: "3.1.16[a]"
+    control_id: "3.1.16"
+    text: "wireless access points are identified."
+  - id: "3.1.16[b]"
+    control_id: "3.1.16"
+    text: "wireless access is authorized prior to allowing such connections."
+
+  # 3.1.17
+  - id: "3.1.17[a]"
+    control_id: "3.1.17"
+    text: "wireless access to the system is protected using authentication."
+  - id: "3.1.17[b]"
+    control_id: "3.1.17"
+    text: "wireless access to the system is protected using encryption."
+
+  # 3.1.18
+  - id: "3.1.18[a]"
+    control_id: "3.1.18"
+    text: "mobile devices that process, store, or transmit CUI are identified."
+  - id: "3.1.18[b]"
+    control_id: "3.1.18"
+    text: "mobile device connections are authorized."
+  - id: "3.1.18[c]"
+    control_id: "3.1.18"
+    text: "mobile device connections are monitored and logged."
+
+  # 3.1.19
+  - id: "3.1.19[a]"
+    control_id: "3.1.19"
+    text: >-
+      mobile devices and mobile computing platforms that process, store, or transmit CUI are
+      identified.
+  - id: "3.1.19[b]"
+    control_id: "3.1.19"
+    text: >-
+      encryption is employed to protect CUI on identified mobile devices and mobile computing
+      platforms.
+
+  # 3.1.20
+  - id: "3.1.20[a]"
+    control_id: "3.1.20"
+    text: "connections to external systems are identified."
+  - id: "3.1.20[b]"
+    control_id: "3.1.20"
+    text: "the use of external systems is identified."
+  - id: "3.1.20[c]"
+    control_id: "3.1.20"
+    text: "connections to external systems are verified."
+  - id: "3.1.20[d]"
+    control_id: "3.1.20"
+    text: "the use of external systems is verified."
+  - id: "3.1.20[e]"
+    control_id: "3.1.20"
+    text: "connections to external systems are controlled/limited."
+  - id: "3.1.20[f]"
+    control_id: "3.1.20"
+    text: "the use of external systems is controlled/limited."
+
+  # 3.1.21
+  - id: "3.1.21[a]"
+    control_id: "3.1.21"
+    text: >-
+      the use of portable storage devices containing CUI on external systems is identified and
+      documented.
+  - id: "3.1.21[b]"
+    control_id: "3.1.21"
+    text: >-
+      limits on the use of portable storage devices containing CUI on external systems are
+      defined.
+  - id: "3.1.21[c]"
+    control_id: "3.1.21"
+    text: >-
+      the use of portable storage devices containing CUI on external systems is limited as
+      defined.
+
+  # 3.1.22
+  - id: "3.1.22[a]"
+    control_id: "3.1.22"
+    text: >-
+      individuals authorized to post or process information on publicly accessible systems are
+      identified.
+  - id: "3.1.22[b]"
+    control_id: "3.1.22"
+    text: >-
+      procedures to ensure CUI is not posted or processed on publicly accessible systems are
+      identified.
+  - id: "3.1.22[c]"
+    control_id: "3.1.22"
+    text: >-
+      a review process is in place prior to posting of any content to publicly accessible
+      systems.
+  - id: "3.1.22[d]"
+    control_id: "3.1.22"
+    text: >-
+      content on publicly accessible systems is reviewed to ensure that it does not include
+      CUI.
+  - id: "3.1.22[e]"
+    control_id: "3.1.22"
+    text: "mechanisms are in place to remove and address improper posting of CUI."
+
+  # 3.3.1
+  - id: "3.3.1[a]"
+    control_id: "3.3.1"
+    text: >-
+      audit logs needed (i.e., event types to be logged) to enable the monitoring, analysis,
+      investigation, and reporting of unlawful or unauthorized system activity are specified.
+  - id: "3.3.1[b]"
+    control_id: "3.3.1"
+    text: >-
+      the content of audit records needed to support monitoring, analysis, investigation, and
+      reporting of unlawful or unauthorized system activity is defined.
+  - id: "3.3.1[c]"
+    control_id: "3.3.1"
+    text: "audit records are created (generated)."
+  - id: "3.3.1[d]"
+    control_id: "3.3.1"
+    text: "audit records, once created, contain the defined content."
+  - id: "3.3.1[e]"
+    control_id: "3.3.1"
+    text: "retention requirements for audit records are defined."
+  - id: "3.3.1[f]"
+    control_id: "3.3.1"
+    text: "audit records are retained as defined."
+
+  # 3.3.2
+  - id: "3.3.2[a]"
+    control_id: "3.3.2"
+    text: >-
+      the content of the audit records needed to support the ability to uniquely trace users
+      to their actions is defined.
+  - id: "3.3.2[b]"
+    control_id: "3.3.2"
+    text: "audit records, once created, contain the defined content."
+
+  # 3.3.3
+  - id: "3.3.3[a]"
+    control_id: "3.3.3"
+    text: "a process for determining when to review logged events is defined."
+  - id: "3.3.3[b]"
+    control_id: "3.3.3"
+    text: "event types being logged are reviewed in accordance with the defined review process."
+  - id: "3.3.3[c]"
+    control_id: "3.3.3"
+    text: "event types being logged are updated based on the review."
+
+  # 3.3.4
+  - id: "3.3.4[a]"
+    control_id: "3.3.4"
+    text: >-
+      personnel or roles to be alerted in the event of an audit logging process failure are
+      identified.
+  - id: "3.3.4[b]"
+    control_id: "3.3.4"
+    text: "types of audit logging process failures for which alert will be generated are defined."
+  - id: "3.3.4[c]"
+    control_id: "3.3.4"
+    text: >-
+      identified personnel or roles are alerted in the event of an audit logging process
+      failure.
+
+  # 3.3.5
+  - id: "3.3.5[a]"
+    control_id: "3.3.5"
+    text: >-
+      audit record review, analysis, and reporting processes for investigation and response to
+      indications of unlawful, unauthorized, suspicious, or unusual activity are defined.
+  - id: "3.3.5[b]"
+    control_id: "3.3.5"
+    text: "defined audit record review, analysis, and reporting processes are correlated."
+
+  # 3.3.6
+  - id: "3.3.6[a]"
+    control_id: "3.3.6"
+    text: "an audit record reduction capability that supports on-demand analysis is provided."
+  - id: "3.3.6[b]"
+    control_id: "3.3.6"
+    text: "a report generation capability that supports on-demand reporting is provided."
+
+  # 3.3.7
+  - id: "3.3.7[a]"
+    control_id: "3.3.7"
+    text: "internal system clocks are used to generate time stamps for audit records."
+  - id: "3.3.7[b]"
+    control_id: "3.3.7"
+    text: >-
+      an authoritative source with which to compare and synchronize internal system clocks is
+      specified.
+  - id: "3.3.7[c]"
+    control_id: "3.3.7"
+    text: >-
+      internal system clocks used to generate time stamps for audit records are compared to
+      and synchronized with the specified authoritative time source.
+
+  # 3.3.8
+  - id: "3.3.8[a]"
+    control_id: "3.3.8"
+    text: "audit information is protected from unauthorized access."
+  - id: "3.3.8[b]"
+    control_id: "3.3.8"
+    text: "audit information is protected from unauthorized modification."
+  - id: "3.3.8[c]"
+    control_id: "3.3.8"
+    text: "audit information is protected from unauthorized deletion."
+  - id: "3.3.8[d]"
+    control_id: "3.3.8"
+    text: "audit logging tools are protected from unauthorized access."
+  - id: "3.3.8[e]"
+    control_id: "3.3.8"
+    text: "audit logging tools are protected from unauthorized modification."
+  - id: "3.3.8[f]"
+    control_id: "3.3.8"
+    text: "audit logging tools are protected from unauthorized deletion."
+
+  # 3.3.9
+  - id: "3.3.9[a]"
+    control_id: "3.3.9"
+    text: >-
+      a subset of privileged users granted access to manage audit logging functionality is
+      defined.
+  - id: "3.3.9[b]"
+    control_id: "3.3.9"
+    text: >-
+      management of audit logging functionality is limited to the defined subset of privileged
+      users.
+
+  # 3.5.1
+  - id: "3.5.1[a]"
+    control_id: "3.5.1"
+    text: "system users are identified."
+  - id: "3.5.1[b]"
+    control_id: "3.5.1"
+    text: "processes acting on behalf of users are identified."
+  - id: "3.5.1[c]"
+    control_id: "3.5.1"
+    text: "devices accessing the system are identified."
+
+  # 3.5.2
+  - id: "3.5.2[a]"
+    control_id: "3.5.2"
+    text: >-
+      the identity of each user is authenticated or verified as a prerequisite to system
+      access.
+  - id: "3.5.2[b]"
+    control_id: "3.5.2"
+    text: >-
+      the identity of each process acting on behalf of a user is authenticated or verified as
+      a prerequisite to system access.
+  - id: "3.5.2[c]"
+    control_id: "3.5.2"
+    text: >-
+      the identity of each device accessing or connecting to the system is authenticated or
+      verified as a prerequisite to system access.
+
+  # 3.5.3
+  - id: "3.5.3[a]"
+    control_id: "3.5.3"
+    text: "privileged accounts are identified."
+  - id: "3.5.3[b]"
+    control_id: "3.5.3"
+    text: "multifactor authentication is implemented for local access to privileged accounts."
+  - id: "3.5.3[c]"
+    control_id: "3.5.3"
+    text: "multifactor authentication is implemented for network access to privileged accounts."
+  - id: "3.5.3[d]"
+    control_id: "3.5.3"
+    text: "multifactor authentication is implemented for network access to non-privileged accounts."
+
+  # 3.5.4
+  - id: "3.5.4"
+    control_id: "3.5.4"
+    text: >-
+      replay-resistant authentication mechanisms are implemented for network account access to
+      privileged and non-privileged accounts.
+
+  # 3.5.5
+  - id: "3.5.5[a]"
+    control_id: "3.5.5"
+    text: "a period within which identifiers cannot be reused is defined."
+  - id: "3.5.5[b]"
+    control_id: "3.5.5"
+    text: "reuse of identifiers is prevented within the defined period."
+
+  # 3.5.6
+  - id: "3.5.6[a]"
+    control_id: "3.5.6"
+    text: "a period of inactivity after which an identifier is disabled is defined."
+  - id: "3.5.6[b]"
+    control_id: "3.5.6"
+    text: "identifiers are disabled after the defined period of inactivity."
+
+  # 3.5.7
+  - id: "3.5.7[a]"
+    control_id: "3.5.7"
+    text: "password complexity requirements are defined."
+  - id: "3.5.7[b]"
+    control_id: "3.5.7"
+    text: "password change of character requirements are defined."
+  - id: "3.5.7[c]"
+    control_id: "3.5.7"
+    text: >-
+      minimum password complexity requirements as defined are enforced when new passwords are
+      created.
+  - id: "3.5.7[d]"
+    control_id: "3.5.7"
+    text: >-
+      minimum password change of character requirements as defined are enforced when new
+      passwords are created.
+
+  # 3.5.8
+  - id: "3.5.8[a]"
+    control_id: "3.5.8"
+    text: "the number of generations during which a password cannot be reused is specified."
+  - id: "3.5.8[b]"
+    control_id: "3.5.8"
+    text: "reuse of passwords is prohibited during the specified number of generations."
+
+  # 3.5.9
+  - id: "3.5.9"
+    control_id: "3.5.9"
+    text: >-
+      an immediate change to a permanent password is required when a temporary password is
+      used for system logon.
+
+  # 3.5.10
+  - id: "3.5.10[a]"
+    control_id: "3.5.10"
+    text: "passwords are cryptographically protected in storage."
+  - id: "3.5.10[b]"
+    control_id: "3.5.10"
+    text: "passwords are cryptographically protected in transit."
+
+  # 3.5.11
+  - id: "3.5.11"
+    control_id: "3.5.11"
+    text: "authentication information is obscured during the authentication process."

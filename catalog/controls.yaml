@@ -1,0 +1,989 @@
+# NIST SP 800-171 Rev 2 control catalog
+#
+# Generated from the primary sources, not hand-typed:
+#   - Requirement text and family: docs/source/sp800-171r2-requirements.csv
+#     (NIST SP 800-171 Rev 2, upd1, supplemental CSV of security requirements)
+#   - NIST SP 800-53 Rev 4 mapping: Appendix D, Tables D-1 / D-3 / D-5 of
+#     docs/source/sp800-171r2.pdf
+#   - Point values: NIST SP 800-171 DoD Assessment Methodology, Version 1.2.1,
+#     June 24, 2020, Annex A
+#
+# Requirement text is verbatim from the CSV except that NIST's footnote markers
+# (e.g. '[23]') and the punctuation they strand have been removed.
+#
+# SCOPE: in_scope is true only for the AC, AU and IA families (42 of 110).
+# Point values for the remaining 68 requirements are null. If another family is
+# ever brought into scope, its values must be transcribed from Annex A of the DoD
+# Assessment Methodology before it can affect a score -- do not guess them.
+#
+# MAPPING NOTES: three entries below are broader than Appendix D read literally,
+# because the build specification supplies a combined list for each pair:
+#   3.1.1 / 3.1.2  spec [AC-2, AC-3, AC-17]; Appendix D lists AC-2 against 3.1.1
+#                  and AC-3, AC-17 against 3.1.2.
+#   3.3.1 / 3.3.2  spec [AU-2, AU-3, AU-3(1), AU-6, AU-12]; Appendix D lists
+#                  AU-2, AU-3, AU-3(1) against 3.3.1 and AU-6, AU-11, AU-12
+#                  against 3.3.2. Note AU-11 (Audit Record Retention) is in
+#                  Appendix D but not in the spec list.
+#   3.5.1 / 3.5.2  spec [IA-2, IA-5]; Appendix D lists IA-2 against 3.5.1 and
+#                  IA-3, IA-5 against 3.5.2. Note IA-3 (Device Identification and
+#                  Authentication) is in Appendix D but not in the spec list.
+# The mapping is documentation, not scoring input, so these do not affect SPRS.
+
+metadata:
+  standard: "NIST SP 800-171 Rev 2"
+  scoring_methodology: "NIST SP 800-171 DoD Assessment Methodology, Version 1.2.1, June 24, 2020"
+  mapping_standard: "NIST SP 800-53 Rev 4"
+  total_requirements: 110
+  in_scope_requirements: 42
+  in_scope_families: [AC, AU, IA]
+
+controls:
+
+  # --- AC : Access Control (22 requirements, in scope) ---
+  - id: "3.1.1"
+    family: AC
+    family_name: "Access Control"
+    title: >-
+      Limit system access to authorized users, processes acting on behalf of authorized users, and
+      devices (including other systems).
+    points: 5
+    in_scope: true
+    nist_800_53_rev4: ["AC-2", "AC-3", "AC-17"]
+  - id: "3.1.2"
+    family: AC
+    family_name: "Access Control"
+    title: >-
+      Limit system access to the types of transactions and functions that authorized users are
+      permitted to execute.
+    points: 5
+    in_scope: true
+    nist_800_53_rev4: ["AC-2", "AC-3", "AC-17"]
+  - id: "3.1.3"
+    family: AC
+    family_name: "Access Control"
+    title: "Control the flow of CUI in accordance with approved authorizations."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-4"]
+  - id: "3.1.4"
+    family: AC
+    family_name: "Access Control"
+    title: >-
+      Separate the duties of individuals to reduce the risk of malevolent activity without
+      collusion.
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-5"]
+  - id: "3.1.5"
+    family: AC
+    family_name: "Access Control"
+    title: >-
+      Employ the principle of least privilege, including for specific security functions and
+      privileged accounts.
+    points: 3
+    in_scope: true
+    nist_800_53_rev4: ["AC-6", "AC-6(1)", "AC-6(5)"]
+  - id: "3.1.6"
+    family: AC
+    family_name: "Access Control"
+    title: "Use non-privileged accounts or roles when accessing nonsecurity functions"
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-6(2)"]
+  - id: "3.1.7"
+    family: AC
+    family_name: "Access Control"
+    title: >-
+      Prevent non-privileged users from executing privileged functions and capture the execution
+      of such functions in audit logs.
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-6(9)", "AC-6(10)"]
+  - id: "3.1.8"
+    family: AC
+    family_name: "Access Control"
+    title: "Limit unsuccessful logon attempts."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-7"]
+  - id: "3.1.9"
+    family: AC
+    family_name: "Access Control"
+    title: "Provide privacy and security notices consistent with applicable CUI rules."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-8"]
+  - id: "3.1.10"
+    family: AC
+    family_name: "Access Control"
+    title: >-
+      Use session lock with pattern-hiding displays to prevent access and viewing of data after a
+      period of inactivity
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-11", "AC-11(1)"]
+  - id: "3.1.11"
+    family: AC
+    family_name: "Access Control"
+    title: "Terminate (automatically) a user session after a defined condition."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-12"]
+  - id: "3.1.12"
+    family: AC
+    family_name: "Access Control"
+    title: "Monitor and control remote access sessions."
+    points: 5
+    in_scope: true
+    na_if_not_permitted: true
+    nist_800_53_rev4: ["AC-17(1)"]
+  - id: "3.1.13"
+    family: AC
+    family_name: "Access Control"
+    title: "Employ cryptographic mechanisms to protect the confidentiality of remote access sessions."
+    points: 5
+    in_scope: true
+    na_if_not_permitted: true
+    nist_800_53_rev4: ["AC-17(2)"]
+  - id: "3.1.14"
+    family: AC
+    family_name: "Access Control"
+    title: "Route remote access via managed access control points."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-17(3)"]
+  - id: "3.1.15"
+    family: AC
+    family_name: "Access Control"
+    title: >-
+      Authorize remote execution of privileged commands and remote access to security-relevant
+      information.
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-17(4)"]
+  - id: "3.1.16"
+    family: AC
+    family_name: "Access Control"
+    title: "Authorize wireless access prior to allowing such connections"
+    points: 5
+    in_scope: true
+    na_if_not_permitted: true
+    nist_800_53_rev4: ["AC-18"]
+  - id: "3.1.17"
+    family: AC
+    family_name: "Access Control"
+    title: "Protect wireless access using authentication and encryption"
+    points: 5
+    in_scope: true
+    na_if_not_permitted: true
+    nist_800_53_rev4: ["AC-18(1)"]
+  - id: "3.1.18"
+    family: AC
+    family_name: "Access Control"
+    title: "Control connection of mobile devices."
+    points: 5
+    in_scope: true
+    na_if_not_permitted: true
+    nist_800_53_rev4: ["AC-19"]
+  - id: "3.1.19"
+    family: AC
+    family_name: "Access Control"
+    title: "Encrypt CUI on mobile devices and mobile computing platforms."
+    points: 3
+    in_scope: true
+    nist_800_53_rev4: ["AC-19(5)"]
+  - id: "3.1.20"
+    family: AC
+    family_name: "Access Control"
+    title: "Verify and control/limit connections to and use of external systems."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-20", "AC-20(1)"]
+  - id: "3.1.21"
+    family: AC
+    family_name: "Access Control"
+    title: "Limit use of portable storage devices on external systems."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-20(2)"]
+  - id: "3.1.22"
+    family: AC
+    family_name: "Access Control"
+    title: "Control CUI posted or processed on publicly accessible systems."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AC-22"]
+
+  # --- AT : Awareness and Training (3 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.2.1"
+    family: AT
+    family_name: "Awareness and Training"
+    title: >-
+      Ensure that managers, systems administrators, and users of organizational systems are made
+      aware of the security risks associated with their activities and of the applicable policies,
+      standards, and procedures related to the security of those systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.2.2"
+    family: AT
+    family_name: "Awareness and Training"
+    title: >-
+      Ensure that personnel are trained to carry out their assigned information security-related
+      duties and responsibilities.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.2.3"
+    family: AT
+    family_name: "Awareness and Training"
+    title: >-
+      Provide security awareness training on recognizing and reporting potential indicators of
+      insider threat.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- AU : Audit and Accountability (9 requirements, in scope) ---
+  - id: "3.3.1"
+    family: AU
+    family_name: "Audit and Accountability"
+    title: >-
+      Create and retain system audit logs and records to the extent needed to enable the
+      monitoring, analysis, investigation, and reporting of unlawful or unauthorized system
+      activity
+    points: 5
+    in_scope: true
+    nist_800_53_rev4: ["AU-2", "AU-3", "AU-3(1)", "AU-6", "AU-12"]
+  - id: "3.3.2"
+    family: AU
+    family_name: "Audit and Accountability"
+    title: >-
+      Ensure that the actions of individual system users can be uniquely traced to those users, so
+      they can be held accountable for their actions.
+    points: 3
+    in_scope: true
+    nist_800_53_rev4: ["AU-2", "AU-3", "AU-3(1)", "AU-6", "AU-12"]
+  - id: "3.3.3"
+    family: AU
+    family_name: "Audit and Accountability"
+    title: "Review and update logged events."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AU-2(3)"]
+  - id: "3.3.4"
+    family: AU
+    family_name: "Audit and Accountability"
+    title: "Alert in the event of an audit logging process failure."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AU-5"]
+  - id: "3.3.5"
+    family: AU
+    family_name: "Audit and Accountability"
+    title: >-
+      Correlate audit record review, analysis, and reporting processes for investigation and
+      response to indications of unlawful, unauthorized, suspicious, or unusual activity.
+    points: 5
+    in_scope: true
+    nist_800_53_rev4: ["AU-6(3)"]
+  - id: "3.3.6"
+    family: AU
+    family_name: "Audit and Accountability"
+    title: >-
+      Provide audit record reduction and report generation to support on-demand analysis and
+      reporting.
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AU-7"]
+  - id: "3.3.7"
+    family: AU
+    family_name: "Audit and Accountability"
+    title: >-
+      Provide a system capability that compares and synchronizes internal system clocks with an
+      authoritative source to generate time stamps for audit records
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AU-8", "AU-8(1)"]
+  - id: "3.3.8"
+    family: AU
+    family_name: "Audit and Accountability"
+    title: >-
+      Protect audit information and audit logging tools from unauthorized access, modification,
+      and deletion.
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AU-9"]
+  - id: "3.3.9"
+    family: AU
+    family_name: "Audit and Accountability"
+    title: "Limit management of audit logging functionality to a subset of privileged users."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["AU-9(4)"]
+
+  # --- CM : Configuration Management (9 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.4.1"
+    family: CM
+    family_name: "Configuration Management"
+    title: >-
+      Establish and maintain baseline configurations and inventories of organizational systems
+      (including hardware, software, firmware, and documentation) throughout the respective system
+      development life cycles.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.4.2"
+    family: CM
+    family_name: "Configuration Management"
+    title: >-
+      Establish and enforce security configuration settings for information technology products
+      employed in organizational systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.4.3"
+    family: CM
+    family_name: "Configuration Management"
+    title: "Track, review, approve or disapprove, and log changes to organizational systems."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.4.4"
+    family: CM
+    family_name: "Configuration Management"
+    title: "Analyze the security impact of changes prior to implementation."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.4.5"
+    family: CM
+    family_name: "Configuration Management"
+    title: >-
+      Define, document, approve, and enforce physical and logical access restrictions associated
+      with changes to organizational systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.4.6"
+    family: CM
+    family_name: "Configuration Management"
+    title: >-
+      Employ the principle of least functionality by configuring organizational systems to provide
+      only essential capabilities.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.4.7"
+    family: CM
+    family_name: "Configuration Management"
+    title: >-
+      Restrict, disable, or prevent the use of nonessential programs, functions, ports, protocols,
+      and services.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.4.8"
+    family: CM
+    family_name: "Configuration Management"
+    title: >-
+      Apply deny-by-exception (blacklisting) policy to prevent the use of unauthorized software or
+      deny-all, permit-by-exception (whitelisting) policy to allow the execution of authorized
+      software.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.4.9"
+    family: CM
+    family_name: "Configuration Management"
+    title: "Control and monitor user-installed software."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- IA : Identification and Authentication (11 requirements, in scope) ---
+  - id: "3.5.1"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: "Identify system users, processes acting on behalf of users, and devices."
+    points: 5
+    in_scope: true
+    nist_800_53_rev4: ["IA-2", "IA-5"]
+  - id: "3.5.2"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: >-
+      Authenticate (or verify) the identities of users, processes, or devices, as a prerequisite
+      to allowing access to organizational systems.
+    points: 5
+    in_scope: true
+    nist_800_53_rev4: ["IA-2", "IA-5"]
+  - id: "3.5.3"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: >-
+      Use multifactor authentication for local and network access to privileged accounts and for
+      network access to non-privileged accounts.
+    points: 5
+    in_scope: true
+    partial_credit: true
+    # Methodology: deduct 5 if MFA is not implemented at all; deduct 3 if MFA is
+    # implemented for privileged and/or remote users but not for general users.
+    nist_800_53_rev4: ["IA-2(1)", "IA-2(2)", "IA-2(3)"]
+  - id: "3.5.4"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: >-
+      Employ replay-resistant authentication mechanisms for network access to privileged and
+      non-privileged accounts.
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["IA-2(8)", "IA-2(9)"]
+  - id: "3.5.5"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: "Prevent reuse of identifiers for a defined period."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["IA-4"]
+  - id: "3.5.6"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: "Disable identifiers after a defined period of inactivity."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["IA-4"]
+  - id: "3.5.7"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: >-
+      Enforce a minimum password complexity and change of characters when new passwords are
+      created.
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["IA-5(1)"]
+  - id: "3.5.8"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: "Prohibit password reuse for a specified number of generations."
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["IA-5(1)"]
+  - id: "3.5.9"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: >-
+      Allow temporary password use for system logons with an immediate change to a permanent
+      password.
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["IA-5(1)"]
+  - id: "3.5.10"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: "Store and transmit only cryptographically-protected passwords."
+    points: 5
+    in_scope: true
+    nist_800_53_rev4: ["IA-5(1)"]
+  - id: "3.5.11"
+    family: IA
+    family_name: "Identification and Authentication"
+    title: "Obscure feedback of authentication information"
+    points: 1
+    in_scope: true
+    nist_800_53_rev4: ["IA-6"]
+
+  # --- IR : Incident Response (3 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.6.1"
+    family: IR
+    family_name: "Incident Response"
+    title: >-
+      Establish an operational incident-handling capability for organizational systems that
+      includes preparation, detection, analysis, containment, recovery, and user response
+      activities.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.6.2"
+    family: IR
+    family_name: "Incident Response"
+    title: >-
+      Track, document, and report incidents to designated officials and/or authorities both
+      internal and external to the organization.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.6.3"
+    family: IR
+    family_name: "Incident Response"
+    title: "Test the organizational incident response capability."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- MA : Maintenance (6 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.7.1"
+    family: MA
+    family_name: "Maintenance"
+    title: "Perform maintenance on organizational systems."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.7.2"
+    family: MA
+    family_name: "Maintenance"
+    title: >-
+      Provide controls on the tools, techniques, mechanisms, and personnel used to conduct system
+      maintenance.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.7.3"
+    family: MA
+    family_name: "Maintenance"
+    title: "Ensure equipment removed for off-site maintenance is sanitized of any CUI."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.7.4"
+    family: MA
+    family_name: "Maintenance"
+    title: >-
+      Check media containing diagnostic and test programs for malicious code before the media are
+      used in organizational systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.7.5"
+    family: MA
+    family_name: "Maintenance"
+    title: >-
+      Require multifactor authentication to establish nonlocal maintenance sessions via external
+      network connections and terminate such connections when nonlocal maintenance is complete.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.7.6"
+    family: MA
+    family_name: "Maintenance"
+    title: >-
+      Supervise the maintenance activities of maintenance personnel without required access
+      authorization.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- MP : Media Protection (9 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.8.1"
+    family: MP
+    family_name: "Media Protection"
+    title: >-
+      Protect (i.e., physically control and securely store) system media containing CUI, both
+      paper and digital.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.8.2"
+    family: MP
+    family_name: "Media Protection"
+    title: "Limit access to CUI on system media to authorized users"
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.8.3"
+    family: MP
+    family_name: "Media Protection"
+    title: "Sanitize or destroy system media containing CUI before disposal or release for reuse."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.8.4"
+    family: MP
+    family_name: "Media Protection"
+    title: "Mark media with necessary CUI markings and distribution limitations."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.8.5"
+    family: MP
+    family_name: "Media Protection"
+    title: >-
+      Control access to media containing CUI and maintain accountability for media during
+      transport outside of controlled areas.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.8.6"
+    family: MP
+    family_name: "Media Protection"
+    title: >-
+      Implement cryptographic mechanisms to protect the confidentiality of CUI stored on digital
+      media during transport unless otherwise protected by alternative physical safeguards.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.8.7"
+    family: MP
+    family_name: "Media Protection"
+    title: "Control the use of removable media on system components."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.8.8"
+    family: MP
+    family_name: "Media Protection"
+    title: "Prohibit the use of portable storage devices when such devices have no identifiable owner."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.8.9"
+    family: MP
+    family_name: "Media Protection"
+    title: "Protect the confidentiality of backup CUI at storage locations."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- PS : Personnel Security (2 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.9.1"
+    family: PS
+    family_name: "Personnel Security"
+    title: "Screen individuals prior to authorizing access to organizational systems containing CUI."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.9.2"
+    family: PS
+    family_name: "Personnel Security"
+    title: >-
+      Ensure that organizational systems containing CUI are protected during and after personnel
+      actions such as terminations and transfers
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- PE : Physical Protection (6 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.10.1"
+    family: PE
+    family_name: "Physical Protection"
+    title: >-
+      Limit physical access to organizational systems, equipment, and the respective operating
+      environments to authorized individuals.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.10.2"
+    family: PE
+    family_name: "Physical Protection"
+    title: >-
+      Protect and monitor the physical facility and support infrastructure for organizational
+      systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.10.3"
+    family: PE
+    family_name: "Physical Protection"
+    title: "Escort visitors and monitor visitor activity."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.10.4"
+    family: PE
+    family_name: "Physical Protection"
+    title: "Maintain audit logs of physical access."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.10.5"
+    family: PE
+    family_name: "Physical Protection"
+    title: "Control and manage physical access devices."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.10.6"
+    family: PE
+    family_name: "Physical Protection"
+    title: "Enforce safeguarding measures for CUI at alternate work sites."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- RA : Risk Assessment (3 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.11.1"
+    family: RA
+    family_name: "Risk Assessment"
+    title: >-
+      Periodically assess the risk to organizational operations (including mission, functions,
+      image, or reputation), organizational assets, and individuals, resulting from the operation
+      of organizational systems and the associated processing, storage, or transmission of CUI
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.11.2"
+    family: RA
+    family_name: "Risk Assessment"
+    title: >-
+      Scan for vulnerabilities in organizational systems and applications periodically and when
+      new vulnerabilities affecting those systems and applications are identified.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.11.3"
+    family: RA
+    family_name: "Risk Assessment"
+    title: "Remediate vulnerabilities in accordance with risk assessments."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- CA : Security Assessment (4 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.12.1"
+    family: CA
+    family_name: "Security Assessment"
+    title: >-
+      Periodically assess the security controls in organizational systems to determine if the
+      controls are effective in their application.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.12.2"
+    family: CA
+    family_name: "Security Assessment"
+    title: >-
+      Develop and implement plans of action designed to correct deficiencies and reduce or
+      eliminate vulnerabilities in organizational systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.12.3"
+    family: CA
+    family_name: "Security Assessment"
+    title: >-
+      Monitor security controls on an ongoing basis to ensure the continued effectiveness of the
+      controls.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.12.4"
+    family: CA
+    family_name: "Security Assessment"
+    title: >-
+      Develop, document, and periodically update system security plans that describe system
+      boundaries, system environments of operation, how security requirements are implemented, and
+      the relationships with or connections to other systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- SC : System and Communications Protection (16 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.13.1"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: >-
+      Monitor, control, and protect communications (i.e., information transmitted or received by
+      organizational systems) at the external boundaries and key internal boundaries of
+      organizational systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.2"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: >-
+      Employ architectural designs, software development techniques, and systems engineering
+      principles that promote effective information security within organizational systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.3"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: "Separate user functionality from system management functionality."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.4"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: "Prevent unauthorized and unintended information transfer via shared system resources."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.5"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: >-
+      Implement subnetworks for publicly accessible system components that are physically or
+      logically separated from internal networks.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.6"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: >-
+      Deny network communications traffic by default and allow network communications traffic by
+      exception (i.e., deny all, permit by exception).
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.7"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: >-
+      Prevent remote devices from simultaneously establishing non-remote connections with
+      organizational systems and communicating via some other connection to resources in external
+      networks (i.e., split tunneling).
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.8"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: >-
+      Implement cryptographic mechanisms to prevent unauthorized disclosure of CUI during
+      transmission unless otherwise protected by alternative physical safeguards.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.9"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: >-
+      Terminate network connections associated with communications sessions at the end of the
+      sessions or after a defined period of inactivity.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.10"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: "Establish and manage cryptographic keys for cryptography employed in organizational systems."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.11"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: "Employ FIPS-validated cryptography when used to protect the confidentiality of CUI."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.12"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: >-
+      Prohibit remote activation of collaborative computing devices and provide indication of
+      devices in use to users present at the device.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.13"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: "Control and monitor the use of mobile code."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.14"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: "Control and monitor the use of Voice over Internet Protocol (VoIP) technologies."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.15"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: "Protect the authenticity of communications sessions."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.13.16"
+    family: SC
+    family_name: "System and Communications Protection"
+    title: "Protect the confidentiality of CUI at rest."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+
+  # --- SI : System and Information Integrity (7 requirements, out of scope - points null) ---
+  # Points must be transcribed from DoD Assessment Methodology v1.2.1 Annex A
+  # before this family can be scored.
+  - id: "3.14.1"
+    family: SI
+    family_name: "System and Information Integrity"
+    title: "Identify, report, and correct system flaws in a timely manner."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.14.2"
+    family: SI
+    family_name: "System and Information Integrity"
+    title: >-
+      Provide protection from malicious code at designated locations within organizational
+      systems.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.14.3"
+    family: SI
+    family_name: "System and Information Integrity"
+    title: "Monitor system security alerts and advisories and take action in response."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.14.4"
+    family: SI
+    family_name: "System and Information Integrity"
+    title: "Update malicious code protection mechanisms when new releases are available."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.14.5"
+    family: SI
+    family_name: "System and Information Integrity"
+    title: >-
+      Perform periodic scans of organizational systems and real-time scans of files from external
+      sources as files are downloaded, opened, or executed.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.14.6"
+    family: SI
+    family_name: "System and Information Integrity"
+    title: >-
+      Monitor organizational systems, including inbound and outbound communications traffic, to
+      detect attacks and indicators of potential attacks.
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
+  - id: "3.14.7"
+    family: SI
+    family_name: "System and Information Integrity"
+    title: "Identify unauthorized use of organizational systems."
+    points: null
+    in_scope: false
+    nist_800_53_rev4: []
