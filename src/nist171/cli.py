@@ -9,21 +9,40 @@ Three subcommands, matching the three stages of the pipeline:
 
 from __future__ import annotations
 
+import hashlib
 import json
 import sys
 from datetime import UTC, datetime
 from pathlib import Path
+from typing import Any
 
+import boto3
 import click
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError, ProfileNotFound
 
 from nist171 import __version__
+from nist171.collectors.aws.cloudtrail import CloudTrailCollector
+from nist171.collectors.aws.ec2 import EC2Collector
 from nist171.collectors.aws.iam import IAMCollector
+from nist171.collectors.aws.kms import KMSCollector
+from nist171.collectors.aws.s3 import S3Collector
+from nist171.collectors.base import VERSION as COLLECTOR_VERSION
+from nist171.collectors.base import Collector
 from nist171.models import Evidence
 from nist171.session import DEFAULT_REGION, make_session
 
 EVIDENCE_DIR = "evidence"
 OUTPUT_DIR = "output"
+MANIFEST_NAME = "manifest.json"
+
+#: Run in a fixed order so two runs of the same account produce comparable output.
+COLLECTORS: tuple[type[Collector], ...] = (
+    IAMCollector,
+    CloudTrailCollector,
+    EC2Collector,
+    S3Collector,
+    KMSCollector,
+)
 
 
 def _run_stamp() -> str:
@@ -41,35 +60,71 @@ def _write_evidence_file(path: Path, items: dict[str, Evidence]) -> None:
     path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
 
 
+def _file_sha256(path: Path) -> str:
+    """SHA-256 of a file's bytes as written to disk."""
+    return hashlib.sha256(path.read_bytes()).hexdigest()
+
+
 def _plural(count: int, singular: str, plural: str | None = None) -> str:
     return f"{count} {singular if count == 1 else (plural or singular + 's')}"
 
 
-def _describe(items: dict[str, Evidence]) -> str:
-    """Short human summary of what a collector actually found."""
-    parts: list[str] = []
-    users = items["users"].raw
-    parts.append(_plural(len(users), "user") if isinstance(users, list) else "users: access denied")
+def _detail(name: str, items: dict[str, Evidence]) -> str:
+    """A short, human-readable note about what one collector actually found."""
+    raw = {key: evidence.raw for key, evidence in items.items()}
 
-    report = items["credential_report"].raw
-    if isinstance(report, list):
-        parts.append(f"credential report {_plural(len(report), 'row')}")
-    else:
-        parts.append("credential report unavailable")
+    def count(key: str) -> int | None:
+        value = raw.get(key)
+        return len(value) if isinstance(value, list | dict) else None
 
-    policies = items["policies"].raw
-    if isinstance(policies, list):
+    if name == "iam":
+        parts = []
+        users = count("users")
+        parts.append(_plural(users, "user") if users is not None else "users denied")
+        report = raw.get("credential_report")
         parts.append(
-            _plural(len(policies), "customer-managed policy", "customer-managed policies")
+            f"credential report {_plural(len(report), 'row')}"
+            if isinstance(report, list)
+            else "credential report unavailable"
+        )
+        admin = raw.get("attached_admin")
+        if isinstance(admin, dict) and "users" in admin:
+            parts.append(f"{_plural(len(admin['users']), 'user')} with AdministratorAccess")
+        parts.append(
+            "no password policy" if raw.get("password_policy") is None else "password policy set"
+        )
+        return ", ".join(parts)
+
+    if name == "cloudtrail":
+        trails = raw.get("trails")
+        if not isinstance(trails, list):
+            return "trails denied"
+        status_raw = raw.get("trail_status")
+        status: dict[str, Any] = status_raw if isinstance(status_raw, dict) else {}
+        logging_now = len(
+            [s for s in status.values() if isinstance(s, dict) and s.get("IsLogging")]
+        )
+        return f"{_plural(len(trails), 'trail')}, {logging_now} logging"
+
+    if name == "ec2":
+        groups = count("security_groups")
+        ebs = raw.get("ebs_encryption_default")
+        return (
+            f"{_plural(groups, 'security group')}, "
+            f"default EBS encryption {'on' if ebs else 'off'}"
+            if groups is not None
+            else "security groups denied"
         )
 
-    admin = items["attached_admin"].raw
-    if isinstance(admin, dict):
-        parts.append(f"{_plural(len(admin.get('users', {})), 'user')} with AdministratorAccess")
+    if name == "s3":
+        buckets = count("buckets")
+        return _plural(buckets, "bucket") if buckets is not None else "buckets denied"
 
-    policy = items["password_policy"].raw
-    parts.append("no password policy" if policy is None else "password policy set")
-    return ", ".join(parts)
+    if name == "kms":
+        keys = count("keys")
+        return _plural(keys, "KMS key") if keys is not None else "keys denied"
+
+    return _plural(len(items), "item")
 
 
 @click.group(context_settings={"help_option_names": ["-h", "--help"]})
@@ -108,16 +163,92 @@ def collect(profile: str | None, region: str, out_dir: Path) -> None:
     except (NoCredentialsError, ClientError, BotoCoreError) as exc:
         raise click.ClickException(f"Could not authenticate to AWS: {exc}") from exc
 
+    started = datetime.now(UTC)
     run_dir = Path(out_dir) / _run_stamp()
     run_dir.mkdir(parents=True, exist_ok=True)
 
-    collector = IAMCollector(session)
-    items = collector.collect()
-    _write_evidence_file(run_dir / f"{collector.name}.json", items)
+    files, failures = _run_collectors(session, run_dir)
+    _write_manifest(run_dir, account_id, region, started, files, failures)
 
-    click.echo(
-        f"Collected {len(items)} IAM evidence items from account {account_id} "
-        f"({_describe(items)}) -> {run_dir / f'{collector.name}.json'}"
+    click.echo(f"\nEvidence written to {run_dir}  (manifest: {MANIFEST_NAME})")
+    if failures:
+        click.echo(
+            f"{_plural(len(failures), 'collector')} failed; see {MANIFEST_NAME}.", err=True
+        )
+
+
+def _run_collectors(
+    session: boto3.Session, run_dir: Path
+) -> tuple[list[dict[str, Any]], list[dict[str, str]]]:
+    """Run every collector, writing one evidence file each.
+
+    A collector that blows up in an unexpected way is recorded and skipped rather than
+    ending the run. Losing the other four services' evidence because KMS returned
+    something surprising would be a bad trade.
+    """
+    files: list[dict[str, Any]] = []
+    failures: list[dict[str, str]] = []
+
+    for collector_class in COLLECTORS:
+        collector = collector_class(session)
+        try:
+            items = collector.collect()
+        except Exception as exc:  # noqa: BLE001 - deliberately broad; recorded, not hidden
+            failures.append(
+                {
+                    "collector": collector.name,
+                    "error_type": type(exc).__name__,
+                    "error": str(exc),
+                }
+            )
+            click.echo(f"  {collector.name:<12} FAILED  {type(exc).__name__}: {exc}", err=True)
+            continue
+
+        path = run_dir / f"{collector.name}.json"
+        _write_evidence_file(path, items)
+        files.append(
+            {
+                "name": path.name,
+                "sha256": _file_sha256(path),
+                "bytes": path.stat().st_size,
+                "items": len(items),
+                "keys": list(items),
+            }
+        )
+        click.echo(
+            f"  {collector.name:<12} {_plural(len(items), 'item'):<8} "
+            f"({_detail(collector.name, items)})"
+        )
+
+    return files, failures
+
+
+def _write_manifest(
+    run_dir: Path,
+    account_id: str,
+    region: str,
+    started: datetime,
+    files: list[dict[str, Any]],
+    failures: list[dict[str, str]],
+) -> None:
+    """Write the manifest: what was collected, when, and the hash of every file.
+
+    The manifest is the index an auditor checks first. Re-hashing each file and comparing
+    against these values proves the evidence set is complete and unmodified.
+    """
+    manifest = {
+        "tool": "nist171-collector",
+        "tool_version": __version__,
+        "collector_version": COLLECTOR_VERSION,
+        "account_id": account_id,
+        "region": region,
+        "collection_started_at": started.isoformat(),
+        "collection_completed_at": datetime.now(UTC).isoformat(),
+        "files": files,
+        "failed_collectors": failures,
+    }
+    (run_dir / MANIFEST_NAME).write_text(
+        json.dumps(manifest, indent=2, default=str), encoding="utf-8"
     )
 
 
