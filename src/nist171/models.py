@@ -130,6 +130,11 @@ class Finding:
         remediation: What to do about it. Required in practice on every FAIL; it becomes
             the POA&M's remediation column.
         evidence: The evidence this judgment rests on.
+        deduction_override: Points to subtract instead of the requirement's catalog
+            value. Used only where the DoD methodology defines partial credit -- today
+            that is 3.5.3, where missing MFA costs 5 points if there is no MFA at all but
+            only 3 if MFA exists for some accounts and not others. None means "use the
+            catalog value", which is the normal case.
     """
 
     control_id: str
@@ -140,6 +145,7 @@ class Finding:
     affected_resources: list[str] = field(default_factory=list)
     remediation: str = ""
     evidence: list[Evidence] = field(default_factory=list)
+    deduction_override: int | None = None
 
     def to_dict(self) -> dict[str, Any]:
         """Serializable form. ``verdict`` becomes its string value, evidence recurses."""
@@ -151,5 +157,6 @@ class Finding:
             "summary": self.summary,
             "affected_resources": list(self.affected_resources),
             "remediation": self.remediation,
+            "deduction_override": self.deduction_override,
             "evidence": [e.to_dict() for e in self.evidence],
         }

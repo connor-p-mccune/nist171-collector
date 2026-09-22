@@ -69,6 +69,7 @@ def finding(
     affected_resources: list[str] | None = None,
     remediation: str = "",
     evidence: list[Evidence] | None = None,
+    deduction_override: int | None = None,
 ) -> Finding:
     """Build a Finding, with the argument order every check uses."""
     return Finding(
@@ -80,6 +81,7 @@ def finding(
         affected_resources=affected_resources or [],
         remediation=remediation,
         evidence=evidence or [],
+        deduction_override=deduction_override,
     )
 
 
