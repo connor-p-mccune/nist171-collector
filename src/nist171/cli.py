@@ -12,6 +12,7 @@ from __future__ import annotations
 import hashlib
 import json
 import sys
+from collections import Counter
 from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
@@ -19,8 +20,11 @@ from typing import Any
 import boto3
 import click
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError, ProfileNotFound
+from rich.console import Console
+from rich.table import Table
 
 from nist171 import __version__
+from nist171.checks import checks_for
 from nist171.collectors.aws.cloudtrail import CloudTrailCollector
 from nist171.collectors.aws.ec2 import EC2Collector
 from nist171.collectors.aws.iam import IAMCollector
@@ -28,7 +32,13 @@ from nist171.collectors.aws.kms import KMSCollector
 from nist171.collectors.aws.s3 import S3Collector
 from nist171.collectors.base import VERSION as COLLECTOR_VERSION
 from nist171.collectors.base import Collector
-from nist171.models import Evidence
+from nist171.evidence_io import (
+    EvidenceIntegrityError,
+    latest_evidence_dir,
+    load_evidence,
+    load_manifest,
+)
+from nist171.models import Evidence, Finding
 from nist171.session import DEFAULT_REGION, make_session
 
 EVIDENCE_DIR = "evidence"
@@ -252,10 +262,114 @@ def _write_manifest(
     )
 
 
+VERDICT_STYLE = {
+    "PASS": "green",
+    "FAIL": "bold red",
+    "MANUAL": "yellow",
+    "NOT_APPLICABLE": "blue",
+    "ERROR": "magenta",
+}
+
+
 @cli.command()
-def assess() -> None:
+@click.option(
+    "--evidence",
+    "evidence_dir",
+    default=None,
+    type=click.Path(exists=True, file_okay=False, path_type=Path),
+    help="Evidence run folder. Defaults to the most recent one under evidence/.",
+)
+@click.option(
+    "--families",
+    default="AC",
+    show_default=True,
+    help="Comma-separated control families to assess.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    default=OUTPUT_DIR,
+    show_default=True,
+    type=click.Path(file_okay=False, path_type=Path),
+    help="Directory to write findings.json into.",
+)
+def assess(evidence_dir: Path | None, families: str, out_dir: Path) -> None:
     """Evaluate saved evidence against the control catalog."""
-    click.echo("not implemented yet")
+    try:
+        run_dir = Path(evidence_dir) if evidence_dir else latest_evidence_dir(EVIDENCE_DIR)
+        evidence = load_evidence(run_dir)
+    except (FileNotFoundError, EvidenceIntegrityError, ValueError) as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    family_list = [f.strip().upper() for f in families.split(",") if f.strip()]
+    try:
+        checks = checks_for(family_list)
+    except KeyError as exc:
+        raise click.ClickException(str(exc).strip("'")) from exc
+
+    findings = [check(evidence) for check in checks]
+
+    manifest = load_manifest(run_dir)
+    _print_findings(run_dir, findings)
+    out_path = _write_findings(out_dir, run_dir, manifest, family_list, findings)
+
+    counts = Counter(f.verdict.value for f in findings)
+    click.echo(
+        "  ".join(f"{verdict}: {counts.get(verdict, 0)}" for verdict in VERDICT_STYLE)
+        + f"\nFindings written to {out_path}"
+    )
+
+
+def _print_findings(run_dir: Path, findings: list[Finding]) -> None:
+    """Render the findings as a table."""
+    console = Console()
+    table = Table(
+        title=f"NIST SP 800-171 Rev 2 assessment - evidence {run_dir.name}",
+        title_style="bold",
+        header_style="bold",
+        show_lines=False,
+    )
+    table.add_column("Control", no_wrap=True)
+    table.add_column("Check", no_wrap=True)
+    table.add_column("Verdict", no_wrap=True)
+    table.add_column("Summary")
+
+    for found in findings:
+        verdict = found.verdict.value
+        table.add_row(
+            found.control_id,
+            found.check_name,
+            f"[{VERDICT_STYLE.get(verdict, 'white')}]{verdict}[/]",
+            found.summary,
+        )
+    console.print(table)
+
+
+def _write_findings(
+    out_dir: Path,
+    run_dir: Path,
+    manifest: dict[str, Any],
+    families: list[str],
+    findings: list[Finding],
+) -> Path:
+    """Write findings.json, carrying enough provenance to rebuild the report later."""
+    out_dir = Path(out_dir)
+    out_dir.mkdir(parents=True, exist_ok=True)
+
+    payload = {
+        "tool": "nist171-collector",
+        "tool_version": __version__,
+        "assessed_at": datetime.now(UTC).isoformat(),
+        "evidence_dir": str(run_dir),
+        "account_id": manifest.get("account_id"),
+        "region": manifest.get("region"),
+        "collected_at": manifest.get("collection_started_at"),
+        "families": families,
+        "findings": [f.to_dict() for f in findings],
+    }
+    path = out_dir / "findings.json"
+    path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
+    return path
 
 
 @cli.command()
