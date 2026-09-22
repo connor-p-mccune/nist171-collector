@@ -168,9 +168,7 @@ objectives:
   # 3.1.12
   - id: "3.1.12[a]"
     control_id: "3.1.12"
-    text: >-
-      remote access sessions are permitted. the types of permitted remote access are
-      identified.
+    text: "remote access sessions are permitted."
   - id: "3.1.12[b]"
     control_id: "3.1.12"
     text: "the types of permitted remote access are identified."
