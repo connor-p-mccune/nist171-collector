@@ -7,11 +7,13 @@ line here.
 
 from __future__ import annotations
 
-from nist171.checks import ac
+from nist171.checks import ac, au, ia
 from nist171.checks.common import Check
 
 FAMILY_CHECKS: dict[str, list[Check]] = {
     "AC": ac.CHECKS,
+    "AU": au.CHECKS,
+    "IA": ia.CHECKS,
 }
 
 #: Families with checks written, in reporting order.

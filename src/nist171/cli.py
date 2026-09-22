@@ -281,9 +281,9 @@ VERDICT_STYLE = {
 )
 @click.option(
     "--families",
-    default="AC",
+    default="AC,AU,IA",
     show_default=True,
-    help="Comma-separated control families to assess.",
+    help="Comma-separated control families to assess, e.g. AC or AC,IA.",
 )
 @click.option(
     "--out",
