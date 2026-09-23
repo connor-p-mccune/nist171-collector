@@ -21,6 +21,7 @@ import boto3
 import click
 from botocore.exceptions import BotoCoreError, ClientError, NoCredentialsError, ProfileNotFound
 from rich.console import Console
+from rich.panel import Panel
 from rich.table import Table
 
 from nist171 import __version__
@@ -39,6 +40,12 @@ from nist171.evidence_io import (
     load_manifest,
 )
 from nist171.models import Evidence, Finding
+from nist171.scoring.sprs import (
+    CAPABILITIES,
+    CONDITIONAL_THRESHOLD,
+    ScoreResult,
+    compute_score,
+)
 from nist171.session import DEFAULT_REGION, make_session
 
 EVIDENCE_DIR = "evidence"
@@ -293,8 +300,17 @@ VERDICT_STYLE = {
     type=click.Path(file_okay=False, path_type=Path),
     help="Directory to write findings.json into.",
 )
-def assess(evidence_dir: Path | None, families: str, out_dir: Path) -> None:
-    """Evaluate saved evidence against the control catalog."""
+@click.option(
+    "--capability-not-permitted",
+    "not_permitted",
+    default="",
+    help=(
+        "Comma-separated capabilities the organization does not permit at all: "
+        f"{', '.join(sorted(CAPABILITIES))}. Requirements that depend on them score as N/A."
+    ),
+)
+def assess(evidence_dir: Path | None, families: str, out_dir: Path, not_permitted: str) -> None:
+    """Evaluate saved evidence against the control catalog and compute a partial SPRS score."""
     try:
         run_dir = Path(evidence_dir) if evidence_dir else latest_evidence_dir(EVIDENCE_DIR)
         evidence = load_evidence(run_dir)
@@ -309,15 +325,25 @@ def assess(evidence_dir: Path | None, families: str, out_dir: Path) -> None:
 
     findings = [check(evidence) for check in checks]
 
+    capabilities = [c.strip() for c in not_permitted.split(",") if c.strip()]
+    try:
+        score = compute_score(findings, capability_not_permitted=capabilities)
+    except ValueError as exc:
+        raise click.ClickException(str(exc)) from exc
+
     manifest = load_manifest(run_dir)
     _print_findings(run_dir, findings)
-    out_path = _write_findings(out_dir, run_dir, manifest, family_list, findings)
 
     counts = Counter(f.verdict.value for f in findings)
     click.echo(
-        "  ".join(f"{verdict}: {counts.get(verdict, 0)}" for verdict in VERDICT_STYLE)
-        + f"\nFindings written to {out_path}"
+        "  ".join(f"{verdict}: {counts.get(verdict, 0)}" for verdict in VERDICT_STYLE) + "\n"
     )
+    _print_score(score)
+
+    out_path = _write_findings(
+        out_dir, run_dir, manifest, family_list, findings, score, capabilities
+    )
+    click.echo(f"Findings and score written to {out_path}")
 
 
 def _print_findings(run_dir: Path, findings: list[Finding]) -> None:
@@ -345,12 +371,58 @@ def _print_findings(run_dir: Path, findings: list[Finding]) -> None:
     console.print(table)
 
 
+def _print_score(score: ScoreResult) -> None:
+    """Render the score with its scope caveat attached, never on its own."""
+    if score.conditional_threshold_met:
+        threshold = (
+            f"[yellow]met on the assessed subset only[/] - not conclusive, since the "
+            f"{score.max_score - score.assessed_count} unassessed requirements can only "
+            "lower it"
+        )
+    else:
+        threshold = (
+            "[bold red]NOT MET[/] - conclusive, since assessing more requirements can only "
+            "lower the score further"
+        )
+
+    unmet_text = (
+        ", ".join(f"{cid} (-{pts})" for cid, pts in score.unmet) if score.unmet else "none"
+    )
+    lines = [
+        f"[bold]Score: {score.score} / {score.max_score}[/]   "
+        f"(partial - {score.assessed_count} of {score.max_score} assessed)",
+        "",
+        f"Implemented: {len(score.implemented)}   "
+        f"Unmet: {len(score.unmet)} (-{score.points_deducted} points)   "
+        f"Not applicable: {len(score.na)}   "
+        f"Not assessed: {len(score.not_assessed)}",
+        f"Unmet requirements: {unmet_text}",
+        f"Lowest possible score for the assessed subset: {score.min_possible}",
+        f"Conditional threshold (>= {CONDITIONAL_THRESHOLD}): {threshold}",
+        "",
+        f"[dim]{score.scope_note}[/]",
+    ]
+    for warning in score.warnings:
+        lines.append(f"[bold magenta]Warning:[/] {warning}")
+
+    Console().print(
+        Panel(
+            "\n".join(lines),
+            title="SPRS score - DoD Assessment Methodology v1.2.1",
+            title_align="left",
+            border_style="red" if not score.conditional_threshold_met else "yellow",
+        )
+    )
+
+
 def _write_findings(
     out_dir: Path,
     run_dir: Path,
     manifest: dict[str, Any],
     families: list[str],
     findings: list[Finding],
+    score: ScoreResult,
+    capability_not_permitted: list[str],
 ) -> Path:
     """Write findings.json, carrying enough provenance to rebuild the report later."""
     out_dir = Path(out_dir)
@@ -365,6 +437,8 @@ def _write_findings(
         "region": manifest.get("region"),
         "collected_at": manifest.get("collection_started_at"),
         "families": families,
+        "capability_not_permitted": capability_not_permitted,
+        "score": score.to_dict(),
         "findings": [f.to_dict() for f in findings],
     }
     path = out_dir / "findings.json"
