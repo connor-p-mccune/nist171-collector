@@ -40,6 +40,14 @@ from nist171.evidence_io import (
     load_manifest,
 )
 from nist171.models import Evidence, Finding
+from nist171.reporting.html import manifest_sha256, write_report
+from nist171.reporting.poam import (
+    FindingsFileError,
+    build_poam,
+    load_findings,
+    write_poam_csv,
+    write_poam_json,
+)
 from nist171.scoring.sprs import (
     CAPABILITIES,
     CONDITIONAL_THRESHOLD,
@@ -447,9 +455,74 @@ def _write_findings(
 
 
 @cli.command()
-def report() -> None:
-    """Generate the score, POA&M, and HTML/OSCAL output from findings."""
-    click.echo("not implemented yet")
+@click.option(
+    "--findings",
+    "findings_path",
+    default=f"{OUTPUT_DIR}/findings.json",
+    show_default=True,
+    type=click.Path(dir_okay=False, path_type=Path),
+    help="findings.json written by 'nist171 assess'.",
+)
+@click.option(
+    "--format",
+    "fmt",
+    type=click.Choice(["html", "csv", "json", "all"], case_sensitive=False),
+    default="html",
+    show_default=True,
+    help="html = full report; csv/json = POA&M only; all = every format.",
+)
+@click.option(
+    "--poc",
+    default="TBD",
+    show_default=True,
+    help="Point of contact recorded on every POA&M item.",
+)
+@click.option(
+    "--out",
+    "out_dir",
+    default=OUTPUT_DIR,
+    show_default=True,
+    type=click.Path(file_okay=False, path_type=Path),
+    help="Directory to write report files into.",
+)
+def report(findings_path: Path, fmt: str, poc: str, out_dir: Path) -> None:
+    """Generate the HTML report and the POA&M from findings.json."""
+    try:
+        data = load_findings(findings_path)
+    except (FileNotFoundError, FindingsFileError) as exc:
+        raise click.ClickException(str(exc)) from exc
+
+    items = build_poam(data, point_of_contact=poc)
+    formats = ["html", "csv", "json"] if fmt.lower() == "all" else [fmt.lower()]
+    out_dir = Path(out_dir)
+    written: list[Path] = []
+
+    if "html" in formats:
+        manifest_hash = manifest_sha256(data.get("evidence_dir"))
+        written.append(
+            write_report(out_dir / "report.html", data, items, manifest_hash=manifest_hash)
+        )
+        if manifest_hash is None:
+            click.echo(
+                f"Warning: no manifest.json found in {data.get('evidence_dir')}; the report "
+                "cannot be tied back to its evidence.",
+                err=True,
+            )
+    if "csv" in formats:
+        written.append(write_poam_csv(out_dir / "poam.csv", items))
+    if "json" in formats:
+        written.append(write_poam_json(out_dir / "poam.json", items, data))
+
+    for path in written:
+        click.echo(f"Wrote {path}")
+
+    fix_first = sum(1 for i in items if not i["conditional_poam_eligible"])
+    click.echo(
+        f"POA&M: {_plural(len(items), 'item')}, {fix_first} must be fixed before assessment "
+        f"(not eligible for a POA&M under 32 CFR 170.21). "
+        f"Score {data['score']['score']}/{data['score']['max_score']}, "
+        f"partial - {data['score']['assessed_count']} of 110 assessed."
+    )
 
 
 def main() -> None:
