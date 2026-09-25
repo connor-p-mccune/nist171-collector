@@ -28,5 +28,8 @@ version = { attr = "nist171.__version__" }
 [tool.setuptools.packages.find]
 where = ["src"]
 
+[tool.setuptools.package-data]
+"nist171.reporting" = ["templates/*.j2"]
+
 [tool.pytest.ini_options]
 testpaths = ["tests"]

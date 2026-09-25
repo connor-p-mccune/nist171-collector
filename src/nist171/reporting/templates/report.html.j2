@@ -1,0 +1,291 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>NIST SP 800-171 Assessment &middot; {{ account_id }}</title>
+<style>
+  :root {
+    --ink: #1f2328;
+    --muted: #59636e;
+    --faint: #818b98;
+    --line: #d8dee4;
+    --line-soft: #eaeef2;
+    --canvas: #f4f6f8;
+    --surface: #ffffff;
+    --navy: #0f2a4a;
+    --navy-2: #1b3d66;
+    --pass-fg: #116329; --pass-bg: #dafbe1; --pass-bd: #aceebb;
+    --fail-fg: #a40e26; --fail-bg: #ffebe9; --fail-bd: #ffcecb;
+    --man-fg:  #424a53; --man-bg:  #eaeef2; --man-bd:  #d1d9e0;
+    --na-fg:   #0550ae; --na-bg:   #ddf4ff; --na-bd:   #b6e3ff;
+    --err-fg:  #953800; --err-bg:  #fff1e5; --err-bd:  #ffd8b5;
+    --warn-fg: #7d4e00; --warn-bg: #fff8c5; --warn-bd: #f5e0a3;
+  }
+  * { box-sizing: border-box; }
+  html { -webkit-text-size-adjust: 100%; }
+  body {
+    margin: 0;
+    background: var(--canvas);
+    color: var(--ink);
+    font: 14px/1.55 -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  }
+  code, .mono { font-family: ui-monospace, "Cascadia Mono", "SF Mono", Consolas, "Liberation Mono", monospace; }
+  .wrap { max-width: 1180px; margin: 0 auto; padding: 0 28px; }
+
+  /* ---------- header ---------- */
+  .masthead { background: linear-gradient(180deg, var(--navy) 0%, var(--navy-2) 100%); color: #fff; padding: 30px 0 26px; }
+  .eyebrow { font-size: 11.5px; letter-spacing: .09em; text-transform: uppercase; color: #a9c1e0; font-weight: 600; margin: 0 0 6px; }
+  .masthead h1 { margin: 0 0 20px; font-size: 26px; font-weight: 650; letter-spacing: -.01em; }
+  .meta { display: grid; grid-template-columns: repeat(auto-fit, minmax(170px, 1fr)); gap: 14px 28px; margin: 0; }
+  .meta div { min-width: 0; }
+  .meta dt { font-size: 11px; letter-spacing: .06em; text-transform: uppercase; color: #a9c1e0; margin-bottom: 2px; }
+  .meta dd { margin: 0; font-size: 14px; font-weight: 550; overflow-wrap: anywhere; }
+
+  main.wrap { padding-top: 24px; padding-bottom: 8px; }
+  section { margin: 0 0 24px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; }
+  h2 { font-size: 17px; margin: 0 0 4px; letter-spacing: -.005em; }
+  .section-head { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; flex-wrap: wrap; margin-bottom: 12px; }
+  .section-head p { margin: 0; color: var(--muted); font-size: 13px; }
+
+  /* ---------- scope callout ---------- */
+  .scope { display: flex; gap: 12px; align-items: flex-start; background: var(--warn-bg); border: 1px solid var(--warn-bd); color: var(--warn-fg); border-radius: 10px; padding: 13px 16px; margin: 0 0 22px; font-size: 13.5px; }
+  .scope strong { color: #5c3900; }
+  .scope .icon { flex: none; width: 20px; height: 20px; border-radius: 50%; background: #d4a72c; color: #fff; font-weight: 700; font-size: 13px; display: grid; place-items: center; margin-top: 1px; }
+
+  /* ---------- score ---------- */
+  .score { display: grid; grid-template-columns: minmax(230px, 300px) 1fr; }
+  .score-main { padding: 24px 26px; border-right: 1px solid var(--line-soft); }
+  .score-label { font-size: 12px; letter-spacing: .06em; text-transform: uppercase; color: var(--muted); font-weight: 600; }
+  .score-value { display: flex; align-items: baseline; gap: 6px; margin: 6px 0 2px; }
+  .score-value .num { font-size: 60px; font-weight: 700; line-height: 1; letter-spacing: -.03em; }
+  .score-value .den { font-size: 22px; color: var(--faint); font-weight: 500; }
+  .score-sub { color: var(--muted); font-size: 13px; margin: 0 0 16px; }
+  .pill { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; font-weight: 600; padding: 5px 11px; border-radius: 999px; border: 1px solid; }
+  .pill .dot { width: 7px; height: 7px; border-radius: 50%; background: currentColor; }
+  .pill.met { color: var(--warn-fg); background: var(--warn-bg); border-color: var(--warn-bd); }
+  .pill.notmet { color: var(--fail-fg); background: var(--fail-bg); border-color: var(--fail-bd); }
+  .threshold-note { font-size: 12.5px; color: var(--muted); margin: 9px 0 0; }
+
+  .stats { display: grid; grid-template-columns: repeat(3, 1fr); }
+  .stat { padding: 18px 22px; border-bottom: 1px solid var(--line-soft); border-right: 1px solid var(--line-soft); }
+  .stat:nth-child(3n) { border-right: 0; }
+  .stat:nth-last-child(-n+3) { border-bottom: 0; }
+  .stat .k { font-size: 12px; color: var(--muted); }
+  .stat .v { font-size: 26px; font-weight: 650; letter-spacing: -.02em; margin-top: 2px; }
+  .stat .h { font-size: 11.5px; color: var(--faint); margin-top: 1px; }
+  .v.pass { color: var(--pass-fg); } .v.fail { color: var(--fail-fg); } .v.na { color: var(--na-fg); } .v.manual { color: var(--man-fg); }
+
+  /* ---------- badges & chips ---------- */
+  .badge { display: inline-block; font-size: 11px; font-weight: 700; letter-spacing: .04em; padding: 3px 8px; border-radius: 6px; border: 1px solid; white-space: nowrap; }
+  .badge.pass   { color: var(--pass-fg); background: var(--pass-bg); border-color: var(--pass-bd); }
+  .badge.fail   { color: var(--fail-fg); background: var(--fail-bg); border-color: var(--fail-bd); }
+  .badge.manual { color: var(--man-fg);  background: var(--man-bg);  border-color: var(--man-bd); }
+  .badge.na     { color: var(--na-fg);   background: var(--na-bg);   border-color: var(--na-bd); }
+  .badge.error  { color: var(--err-fg);  background: var(--err-bg);  border-color: var(--err-bd); }
+  .legend { display: flex; gap: 8px; flex-wrap: wrap; }
+  .legend .badge .n { font-weight: 600; margin-left: 5px; opacity: .85; }
+  .chips { display: flex; flex-wrap: wrap; gap: 5px; margin-top: 7px; }
+  .chip { font-family: ui-monospace, "Cascadia Mono", Consolas, monospace; font-size: 11.5px; background: #f6f8fa; border: 1px solid var(--line); color: #33383e; padding: 1px 7px; border-radius: 5px; overflow-wrap: anywhere; }
+
+  /* ---------- tables ---------- */
+  .table-wrap { overflow-x: auto; }
+  table { width: 100%; border-collapse: collapse; font-size: 13.5px; }
+  thead th { text-align: left; font-size: 11.5px; letter-spacing: .05em; text-transform: uppercase; color: var(--muted); font-weight: 600; padding: 10px 14px; border-bottom: 1px solid var(--line); background: #fafbfc; }
+  thead th:first-child { border-top-left-radius: 10px; } thead th:last-child { border-top-right-radius: 10px; }
+  tbody td { padding: 12px 14px; border-bottom: 1px solid var(--line-soft); vertical-align: top; }
+  tbody tr:last-child td { border-bottom: 0; }
+  tr.group th { text-align: left; background: #f6f8fa; font-size: 12.5px; color: var(--ink); padding: 8px 14px; border-bottom: 1px solid var(--line-soft); font-weight: 650; }
+  tr.group .code { color: var(--faint); font-weight: 600; margin-right: 8px; }
+  tr.is-fail td { background: #fffafa; }
+  .ctl { font-weight: 650; white-space: nowrap; }
+  .obj { display: block; font-size: 11.5px; color: var(--faint); font-weight: 500; }
+  .check { font-size: 12px; color: #424a53; }
+  .req { display: block; font-size: 12px; color: var(--muted); margin-top: 3px; max-width: 280px; }
+  .override { display: inline-block; margin-top: 6px; font-size: 11.5px; color: var(--warn-fg); background: var(--warn-bg); border: 1px solid var(--warn-bd); border-radius: 5px; padding: 1px 7px; }
+  details { margin-top: 2px; }
+  details summary { cursor: pointer; color: var(--muted); font-size: 12.5px; font-weight: 550; }
+  details summary:hover { color: var(--ink); }
+  details[open] summary { margin-bottom: 6px; }
+  details p { margin: 0; color: #33383e; }
+  .num-cell { text-align: right; font-weight: 650; white-space: nowrap; }
+  .nowrap { white-space: nowrap; }
+  .empty { padding: 22px; color: var(--muted); text-align: center; }
+  .poam-note { font-size: 12.5px; color: var(--muted); margin: 10px 2px 0; }
+
+  /* ---------- warnings & footer ---------- */
+  .warnings { background: var(--err-bg); border: 1px solid var(--err-bd); color: var(--err-fg); border-radius: 10px; padding: 12px 16px; margin: 0 0 24px; font-size: 13px; }
+  .warnings strong { display: block; margin-bottom: 4px; }
+  .warnings ul { margin: 0; padding-left: 18px; }
+  footer { border-top: 1px solid var(--line); margin-top: 8px; padding: 20px 0 36px; color: var(--muted); font-size: 12.5px; }
+  .hash { display: flex; gap: 10px; align-items: baseline; flex-wrap: wrap; background: var(--surface); border: 1px solid var(--line); border-radius: 8px; padding: 10px 14px; margin-bottom: 12px; }
+  .hash .label { font-weight: 650; color: var(--ink); white-space: nowrap; }
+  .hash code { font-size: 12.5px; color: var(--ink); overflow-wrap: anywhere; }
+  footer p { margin: 4px 0; }
+
+  @media (max-width: 760px) {
+    .wrap { padding: 0 16px; }
+    .score { grid-template-columns: 1fr; }
+    .score-main { border-right: 0; border-bottom: 1px solid var(--line-soft); }
+    .stats { grid-template-columns: repeat(2, 1fr); }
+    .stat:nth-child(3n) { border-right: 1px solid var(--line-soft); }
+    .stat:nth-child(2n) { border-right: 0; }
+  }
+  @media print {
+    body { background: #fff; }
+    .masthead { background: var(--navy) !important; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+    .card, .scope, .hash { break-inside: avoid; }
+    tr { break-inside: avoid; }
+  }
+</style>
+</head>
+<body>
+
+<header class="masthead">
+  <div class="wrap">
+    <p class="eyebrow">NIST SP 800-171 Rev 2 &middot; Partial automated assessment</p>
+    <h1>AWS Compliance Assessment Report</h1>
+    <dl class="meta">
+      <div><dt>AWS account</dt><dd class="mono">{{ account_id }}</dd></div>
+      <div><dt>Region</dt><dd>{{ region }}</dd></div>
+      <div><dt>Evidence collected</dt><dd>{{ collected_at }}</dd></div>
+      <div><dt>Assessed</dt><dd>{{ assessed_at }}</dd></div>
+      <div><dt>Families</dt><dd>{{ families }}</dd></div>
+    </dl>
+  </div>
+</header>
+
+<main class="wrap">
+
+  <div class="scope" role="note">
+    <span class="icon" aria-hidden="true">!</span>
+    <div><strong>Scope:</strong> {{ score.scope_note }}</div>
+  </div>
+
+  {% if score.warnings %}
+  <div class="warnings" role="alert">
+    <strong>Read before relying on this score</strong>
+    <ul>{% for w in score.warnings %}<li>{{ w }}</li>{% endfor %}</ul>
+  </div>
+  {% endif %}
+
+  <!-- ================= Score ================= -->
+  <section class="card score" aria-labelledby="score-h">
+    <div class="score-main">
+      <div class="score-label" id="score-h">SPRS score &middot; partial</div>
+      <div class="score-value"><span class="num">{{ score.score }}</span><span class="den">/ {{ score.max_score }}</span></div>
+      <p class="score-sub">{{ score.assessed_count }} of {{ score.max_score }} requirements assessed</p>
+      {% if score.conditional_threshold_met %}
+        <span class="pill met"><span class="dot"></span>Threshold &ge; {{ score.conditional_threshold }}: met on subset only</span>
+        <p class="threshold-note">Not conclusive &mdash; the {{ unscored_count }} unassessed requirements can only lower this score.</p>
+      {% else %}
+        <span class="pill notmet"><span class="dot"></span>Threshold &ge; {{ score.conditional_threshold }}: not met</span>
+        <p class="threshold-note">Conclusive &mdash; assessing more requirements can only lower this score further.</p>
+      {% endif %}
+    </div>
+    <div class="stats">
+      <div class="stat"><div class="k">Implemented</div><div class="v pass">{{ score.implemented|length }}</div><div class="h">requirements met</div></div>
+      <div class="stat"><div class="k">Unmet</div><div class="v fail">{{ score.unmet|length }}</div><div class="h">&minus;{{ points_deducted }} points</div></div>
+      <div class="stat"><div class="k">Not applicable</div><div class="v na">{{ score.na|length }}</div><div class="h">capability not permitted</div></div>
+      <div class="stat"><div class="k">Not assessed</div><div class="v manual">{{ not_assessed_count }}</div><div class="h">need human review</div></div>
+      <div class="stat"><div class="k">Points deducted</div><div class="v">&minus;{{ points_deducted }}</div><div class="h">DoD Methodology v1.2.1</div></div>
+      <div class="stat"><div class="k">Floor for assessed set</div><div class="v">{{ score.min_possible }}</div><div class="h">if every assessed item failed</div></div>
+    </div>
+  </section>
+
+  <!-- ================= Findings ================= -->
+  <section aria-labelledby="findings-h">
+    <div class="section-head">
+      <div>
+        <h2 id="findings-h">Findings</h2>
+        <p>One row per check. A requirement may have several checks; it is scored once.</p>
+      </div>
+      <div class="legend">
+        {% for label, n, css in verdict_counts %}<span class="badge {{ css }}">{{ label }}<span class="n">{{ n }}</span></span>{% endfor %}
+      </div>
+    </div>
+    <div class="card table-wrap">
+      <table>
+        <thead><tr><th style="width:110px">Control</th><th style="width:230px">Check</th><th style="width:92px">Verdict</th><th>Finding</th></tr></thead>
+        <tbody>
+        {% for group in finding_groups %}
+          <tr class="group"><th colspan="4"><span class="code">{{ group.code }}</span>{{ group.name }}</th></tr>
+          {% for f in group.findings %}
+          <tr class="{{ 'is-fail' if f.verdict_class == 'fail' else '' }}">
+            <td class="ctl">{{ f.control_id }}{% if f.objective_id and f.objective_id != f.control_id %}<span class="obj">{{ f.objective_id }}</span>{% endif %}</td>
+            <td class="check mono">{{ f.check_name_html }}</td>
+            <td><span class="badge {{ f.verdict_class }}">{{ f.verdict_label }}</span></td>
+            <td>
+              {% if f.is_manual %}
+                <details><summary>Human assessment required &mdash; what to review</summary><p>{{ f.summary }}</p></details>
+              {% else %}
+                {{ f.summary }}
+                {% if f.affected_resources %}<div class="chips">{% for r in f.affected_resources %}<span class="chip">{{ r }}</span>{% endfor %}</div>{% endif %}
+                {% if f.deduction_override is not none %}<span class="override">Partial credit: &minus;{{ f.deduction_override }} points</span>{% endif %}
+              {% endif %}
+            </td>
+          </tr>
+          {% endfor %}
+        {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <!-- ================= POA&M ================= -->
+  <section aria-labelledby="poam-h">
+    <div class="section-head">
+      <div>
+        <h2 id="poam-h">Plan of Action &amp; Milestones</h2>
+        <p>One item per unmet requirement. Due dates are {{ poam_window_days }} days from evidence collection.</p>
+      </div>
+    </div>
+    <div class="card table-wrap">
+      {% if poam_items %}
+      <table>
+        <thead><tr><th style="width:92px">ID</th><th style="width:210px">Control</th><th>Weakness &amp; remediation</th><th style="width:60px;text-align:right">Pts</th><th style="width:104px">Due</th><th style="width:104px">Deferrable</th><th style="width:120px">Owner</th></tr></thead>
+        <tbody>
+        {% for item in poam_items %}
+          <tr>
+            <td class="mono nowrap">{{ item.poam_id }}</td>
+            <td><span class="ctl">{{ item.control_id }}</span><span class="req">{{ item.requirement }}</span>{% if item.nist_800_53_rev4 %}<span class="obj">800-53: {{ item.nist_800_53_rev4|join(', ') }}</span>{% endif %}</td>
+            <td>
+              {{ item.weakness }}
+              {% if item.affected_resources %}<div class="chips">{% for r in item.affected_resources %}<span class="chip">{{ r }}</span>{% endfor %}</div>{% endif %}
+              {% if item.remediation %}<details><summary>Remediation</summary><p>{{ item.remediation }}</p></details>{% endif %}
+            </td>
+            <td class="num-cell">&minus;{{ item.points }}</td>
+            <td class="nowrap">{{ item.scheduled_completion }}</td>
+            <td>{% if item.conditional_poam_eligible %}<span class="badge pass" title="{{ item.eligibility_note }}">YES</span>{% else %}<span class="badge fail" title="{{ item.eligibility_note }}">FIX FIRST</span>{% endif %}</td>
+            <td>{{ item.point_of_contact }}</td>
+          </tr>
+        {% endfor %}
+        </tbody>
+      </table>
+      {% else %}
+      <div class="empty">No unmet requirements among those assessed &mdash; nothing to schedule.</div>
+      {% endif %}
+    </div>
+    {% if poam_items %}
+    <p class="poam-note">
+      <strong>{{ ineligible_count }} of {{ poam_items|length }}</strong> items are marked <em>fix first</em>: under the CMMC program rule (32&nbsp;CFR&nbsp;170.21) only 1-point requirements may stay on a POA&amp;M for conditional Level&nbsp;2 status, and 3.1.20, 3.1.22, 3.12.4 and 3.10.3&ndash;3.10.5 may never be deferred. Hover a badge for the reason.
+    </p>
+    {% endif %}
+  </section>
+
+</main>
+
+<footer>
+  <div class="wrap">
+    <div class="hash">
+      <span class="label">Evidence manifest sha256:</span>
+      {% if manifest_hash %}<code>{{ manifest_hash }}</code>{% else %}<code>not available &mdash; manifest.json not found in {{ evidence_dir }}</code>{% endif %}
+    </div>
+    <p>Evidence folder <code>{{ evidence_dir }}</code>. Re-hash its <code>manifest.json</code> and compare with the value above to confirm this report was produced from that evidence and that the evidence is unchanged.</p>
+    <p>Scored under the NIST SP 800-171 DoD Assessment Methodology, Version 1.2.1 (June 24, 2020). Report generated {{ generated_at }} by nist171-collector {{ tool_version }}.</p>
+  </div>
+</footer>
+
+</body>
+</html>
