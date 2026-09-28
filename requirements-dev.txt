@@ -7,3 +7,6 @@ pytest-cov==7.1.0
 ruff==0.16.7
 mypy==2.3.1
 types-PyYAML==6.0.12.20260906
+# Validates OSCAL output against the official NIST schema in tests/fixtures/oscal/.
+# Already installed as a dependency of moto; pinned here because the tests use it directly.
+jsonschema==4.26.0
