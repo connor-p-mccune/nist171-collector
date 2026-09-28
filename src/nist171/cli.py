@@ -41,6 +41,7 @@ from nist171.evidence_io import (
 )
 from nist171.models import Evidence, Finding
 from nist171.reporting.html import manifest_sha256, write_report
+from nist171.reporting.oscal import build_assessment_results, write_oscal
 from nist171.reporting.poam import (
     FindingsFileError,
     build_poam,
@@ -466,10 +467,13 @@ def _write_findings(
 @click.option(
     "--format",
     "fmt",
-    type=click.Choice(["html", "csv", "json", "all"], case_sensitive=False),
+    type=click.Choice(["html", "csv", "json", "oscal", "all"], case_sensitive=False),
     default="html",
     show_default=True,
-    help="html = full report; csv/json = POA&M only; all = every format.",
+    help=(
+        "html = full report; csv/json = POA&M only; oscal = OSCAL 1.1.3 "
+        "assessment-results; all = every format."
+    ),
 )
 @click.option(
     "--poc",
@@ -486,19 +490,20 @@ def _write_findings(
     help="Directory to write report files into.",
 )
 def report(findings_path: Path, fmt: str, poc: str, out_dir: Path) -> None:
-    """Generate the HTML report and the POA&M from findings.json."""
+    """Generate the HTML report, the POA&M and OSCAL output from findings.json."""
     try:
         data = load_findings(findings_path)
     except (FileNotFoundError, FindingsFileError) as exc:
         raise click.ClickException(str(exc)) from exc
 
     items = build_poam(data, point_of_contact=poc)
-    formats = ["html", "csv", "json"] if fmt.lower() == "all" else [fmt.lower()]
+    formats = ["html", "csv", "json", "oscal"] if fmt.lower() == "all" else [fmt.lower()]
     out_dir = Path(out_dir)
     written: list[Path] = []
 
+    manifest_hash = manifest_sha256(data.get("evidence_dir"))
+
     if "html" in formats:
-        manifest_hash = manifest_sha256(data.get("evidence_dir"))
         written.append(
             write_report(out_dir / "report.html", data, items, manifest_hash=manifest_hash)
         )
@@ -512,6 +517,10 @@ def report(findings_path: Path, fmt: str, poc: str, out_dir: Path) -> None:
         written.append(write_poam_csv(out_dir / "poam.csv", items))
     if "json" in formats:
         written.append(write_poam_json(out_dir / "poam.json", items, data))
+    if "oscal" in formats:
+        manifest = load_manifest(data["evidence_dir"]) if data.get("evidence_dir") else {}
+        document = build_assessment_results(data, manifest=manifest, manifest_hash=manifest_hash)
+        written.append(write_oscal(out_dir / "oscal-assessment-results.json", document))
 
     for path in written:
         click.echo(f"Wrote {path}")
