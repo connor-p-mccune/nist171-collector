@@ -33,3 +33,32 @@ where = ["src"]
 
 [tool.pytest.ini_options]
 testpaths = ["tests"]
+
+# Coverage is measured only when asked for (pytest --cov), so running one test file on its
+# own is not failed for covering too little of the package.
+[tool.coverage.run]
+source = ["src/nist171"]
+
+[tool.coverage.report]
+fail_under = 80
+show_missing = true
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+# E/F: pycodestyle errors and pyflakes (real bugs: unused names, undefined names).
+# I: import sorting. UP: rewrite to modern Python syntax for the target version.
+select = ["E", "F", "I", "UP"]
+
+[tool.mypy]
+python_version = "3.12"
+files = ["src"]
+warn_return_any = true
+
+# boto3, botocore and moto ship without type information. Without this, mypy reports
+# every import of them as an error.
+[[tool.mypy.overrides]]
+module = ["boto3", "boto3.*", "botocore.*", "moto", "moto.*"]
+ignore_missing_imports = true
