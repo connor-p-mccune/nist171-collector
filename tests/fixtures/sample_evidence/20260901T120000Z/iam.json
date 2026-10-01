@@ -1,0 +1,118 @@
+[
+  {
+    "key": "users",
+    "source": "aws:iam:list_users",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "da1b0f6f57f7accfe74ae7b97f12e38f877072a03e125496b279ee8047ae1ef5",
+    "raw": [
+      {
+        "Path": "/",
+        "UserName": "alice",
+        "UserId": "AIDAFIXTUREALICE0001",
+        "Arn": "arn:aws:iam::111122223333:user/alice",
+        "CreateDate": "2026-08-03 14:20:00+00:00"
+      }
+    ]
+  },
+  {
+    "key": "mfa_devices",
+    "source": "aws:iam:list_mfa_devices",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "65c3c6a286a4eacd52038a58b33d6af1f6e1e860ce4b5c62f102053a89883df6",
+    "raw": {
+      "alice": [
+        {
+          "UserName": "alice",
+          "SerialNumber": "arn:aws:iam::111122223333:mfa/alice",
+          "EnableDate": "2026-08-03 14:25:00+00:00"
+        }
+      ]
+    }
+  },
+  {
+    "key": "credential_report",
+    "source": "aws:iam:get_credential_report",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "eebf7b5877d0786fcf7178d593f56bff14f8d5651f82256139377ee039c8aeb8",
+    "raw": [
+      {
+        "user": "<root_account>",
+        "arn": "arn:aws:iam::111122223333:root",
+        "user_creation_time": "2026-08-03T14:20:00+00:00",
+        "password_enabled": "not_supported",
+        "password_last_used": "2026-08-31T09:15:00+00:00",
+        "password_last_changed": "2026-08-03T14:20:00+00:00",
+        "password_next_rotation": "N/A",
+        "mfa_active": "true",
+        "access_key_1_active": "false",
+        "access_key_1_last_rotated": "N/A",
+        "access_key_1_last_used_date": "N/A",
+        "access_key_1_last_used_region": "N/A",
+        "access_key_1_last_used_service": "N/A",
+        "access_key_2_active": "false",
+        "access_key_2_last_rotated": "N/A",
+        "access_key_2_last_used_date": "N/A",
+        "access_key_2_last_used_region": "N/A",
+        "access_key_2_last_used_service": "N/A",
+        "cert_1_active": "false",
+        "cert_1_last_rotated": "N/A",
+        "cert_2_active": "false",
+        "cert_2_last_rotated": "N/A"
+      },
+      {
+        "user": "alice",
+        "arn": "arn:aws:iam::111122223333:user/alice",
+        "user_creation_time": "2026-08-03T14:20:00+00:00",
+        "password_enabled": "true",
+        "password_last_used": "2026-08-31T09:15:00+00:00",
+        "password_last_changed": "2026-08-03T14:20:00+00:00",
+        "password_next_rotation": "N/A",
+        "mfa_active": "true",
+        "access_key_1_active": "false",
+        "access_key_1_last_rotated": "N/A",
+        "access_key_1_last_used_date": "N/A",
+        "access_key_1_last_used_region": "N/A",
+        "access_key_1_last_used_service": "N/A",
+        "access_key_2_active": "false",
+        "access_key_2_last_rotated": "N/A",
+        "access_key_2_last_used_date": "N/A",
+        "access_key_2_last_used_region": "N/A",
+        "access_key_2_last_used_service": "N/A",
+        "cert_1_active": "false",
+        "cert_1_last_rotated": "N/A",
+        "cert_2_active": "false",
+        "cert_2_last_rotated": "N/A"
+      }
+    ]
+  },
+  {
+    "key": "policies",
+    "source": "aws:iam:list_policies",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "4f53cda18c2baa0c0354bb5f9a3ecbe5ed12ab4d8e11ba873c2f11161202b945",
+    "raw": []
+  },
+  {
+    "key": "attached_admin",
+    "source": "aws:iam:list_attached_policies",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "cd49bd0483300ec2a5db3eb740977518104f693df1f676fdf06b06b4c5427d80",
+    "raw": {
+      "users": {},
+      "roles": {}
+    }
+  },
+  {
+    "key": "password_policy",
+    "source": "aws:iam:get_account_password_policy",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "74234e98afe7498fb5daf1f36ac2d78acc339464f950703b8c019892f982b90b",
+    "raw": null
+  }
+]

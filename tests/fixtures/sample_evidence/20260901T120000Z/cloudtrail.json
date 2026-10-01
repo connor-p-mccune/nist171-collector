@@ -1,0 +1,34 @@
+[
+  {
+    "key": "trails",
+    "source": "aws:cloudtrail:describe_trails",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "351f5b598ff73bd0683635ab0b135b5e079652af72fa6b3dc974690428087b25",
+    "raw": [
+      {
+        "Name": "org-trail",
+        "TrailARN": "arn:aws:cloudtrail:us-east-1:111122223333:trail/org-trail",
+        "S3BucketName": "nist171-fixture-secure",
+        "IsMultiRegionTrail": true,
+        "LogFileValidationEnabled": true,
+        "IncludeGlobalServiceEvents": true,
+        "KmsKeyId": null,
+        "HomeRegion": "us-east-1"
+      }
+    ]
+  },
+  {
+    "key": "trail_status",
+    "source": "aws:cloudtrail:get_trail_status",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "c93640856cc3921fdeb59a8328d59963c300287c21c8bd3868107c74df3ec0ee",
+    "raw": {
+      "arn:aws:cloudtrail:us-east-1:111122223333:trail/org-trail": {
+        "IsLogging": true,
+        "LatestDeliveryTime": "2026-09-01 11:55:00+00:00"
+      }
+    }
+  }
+]

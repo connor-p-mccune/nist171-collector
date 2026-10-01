@@ -1,0 +1,77 @@
+[
+  {
+    "key": "security_groups",
+    "source": "aws:ec2:describe_security_groups",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "7157b15f86e95d3cc9c33224352a3aa11fc321ddf8b1bf8720df8d1e705d003a",
+    "raw": [
+      {
+        "GroupId": "sg-0f1x7uredefau1t0",
+        "GroupName": "default",
+        "Description": "default",
+        "VpcId": "vpc-0f1x7ure00000001",
+        "OwnerId": "111122223333",
+        "IpPermissions": [],
+        "IpPermissionsEgress": [
+          {
+            "IpProtocol": "-1",
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ],
+            "Ipv6Ranges": [],
+            "PrefixListIds": [],
+            "UserIdGroupPairs": []
+          }
+        ],
+        "Tags": []
+      },
+      {
+        "GroupId": "sg-0f1x7ure0pen0022",
+        "GroupName": "fixture-open-ssh",
+        "Description": "fixture-open-ssh",
+        "VpcId": "vpc-0f1x7ure00000001",
+        "OwnerId": "111122223333",
+        "IpPermissions": [
+          {
+            "IpProtocol": "tcp",
+            "FromPort": 22,
+            "ToPort": 22,
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ],
+            "Ipv6Ranges": [],
+            "PrefixListIds": [],
+            "UserIdGroupPairs": []
+          }
+        ],
+        "IpPermissionsEgress": [
+          {
+            "IpProtocol": "-1",
+            "IpRanges": [
+              {
+                "CidrIp": "0.0.0.0/0"
+              }
+            ],
+            "Ipv6Ranges": [],
+            "PrefixListIds": [],
+            "UserIdGroupPairs": []
+          }
+        ],
+        "Tags": []
+      }
+    ]
+  },
+  {
+    "key": "ebs_encryption_default",
+    "source": "aws:ec2:get_ebs_encryption_by_default",
+    "collected_at": "2026-09-01T12:00:00+00:00",
+    "collector_version": "0.1.0",
+    "sha256": "b5bea41b6c623f7c09f1bf24dcae58ebab3c0cdd90ad966bc43a45b44867e12b",
+    "raw": true
+  }
+]

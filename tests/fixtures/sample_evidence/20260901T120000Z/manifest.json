@@ -1,0 +1,65 @@
+{
+  "tool": "nist171-collector",
+  "tool_version": "0.1.0",
+  "collector_version": "0.1.0",
+  "account_id": "111122223333",
+  "region": "us-east-1",
+  "collection_started_at": "2026-09-01T12:00:00+00:00",
+  "collection_completed_at": "2026-09-01T12:00:00+00:00",
+  "files": [
+    {
+      "name": "iam.json",
+      "sha256": "6951bd66e2dbfb32bc6c5af3345a39233bfa7f55167d234269ae1ee783778465",
+      "bytes": 3993,
+      "items": 6,
+      "keys": [
+        "users",
+        "mfa_devices",
+        "credential_report",
+        "policies",
+        "attached_admin",
+        "password_policy"
+      ]
+    },
+    {
+      "name": "cloudtrail.json",
+      "sha256": "f994b056d4e0068d08e8437b5e5567242667b48cbca1122593184184aafd0b43",
+      "bytes": 1053,
+      "items": 2,
+      "keys": [
+        "trails",
+        "trail_status"
+      ]
+    },
+    {
+      "name": "ec2.json",
+      "sha256": "ae3103d35b6a5d41daa1948b39e07fbc8ae04e2d146d6a61fa26bf4725e8ce2a",
+      "bytes": 2019,
+      "items": 2,
+      "keys": [
+        "security_groups",
+        "ebs_encryption_default"
+      ]
+    },
+    {
+      "name": "s3.json",
+      "sha256": "3f4ab7820e5baf9d8d7657e90dc27fdaec8c1a683104d640e91fb2d35ff82c77",
+      "bytes": 2199,
+      "items": 2,
+      "keys": [
+        "buckets",
+        "bucket_config"
+      ]
+    },
+    {
+      "name": "kms.json",
+      "sha256": "90b4a958c7b6ea9cf9ecfe6638b277189c2862fa40e24bd326ec2893f6461d59",
+      "bytes": 247,
+      "items": 1,
+      "keys": [
+        "keys"
+      ]
+    }
+  ],
+  "failed_collectors": []
+}
