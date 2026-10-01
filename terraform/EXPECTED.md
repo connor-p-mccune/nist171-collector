@@ -29,7 +29,7 @@ configured correctly and must *not* appear in the check's affected-resources lis
 | 10 | `aws_iam_policy.least_privilege` | 3.1.2 | `iam_no_wildcard_admin_policies` | PASS |
 | 11 | `aws_iam_account_password_policy.weak` — exists at all | 3.5.2 | `password_policy_exists` | PASS |
 | 12 | `aws_iam_user.no_mfa_user` — no console password | 3.5.3 | `mfa_all_users` | PASS |
-| 13 | `aws_s3_bucket.noncompliant` — no public access block | 3.1.20 | `s3_public_access_blocked` | **FAIL** |
+| 13 | `aws_s3_bucket.noncompliant` — no public access block *configured* | 3.1.20 | `s3_public_access_blocked` | PASS (see note) |
 | 14 | `aws_s3_bucket.noncompliant` — no bucket policy | 3.1.13 | `s3_requires_tls` | **FAIL** |
 | 15 | `aws_iam_policy.too_permissive` — `Allow * on *` | 3.1.2 | `iam_no_wildcard_admin_policies` | **FAIL** |
 | 16 | `aws_iam_user_policy_attachment.no_mfa_user_admin` | 3.1.5 | `iam_least_privilege_admin` | **FAIL** |
@@ -38,9 +38,31 @@ configured correctly and must *not* appear in the check's affected-resources lis
 | 19 | `aws_security_group.open_ssh` — port 3389 from `0.0.0.0/0` | 3.1.12 | `sg_no_unrestricted_admin_ingress` | **FAIL** |
 | 20 | `aws_iam_account_password_policy.weak` — length 8, no character classes | 3.5.7 | `password_complexity` | **FAIL** |
 | 21 | `aws_iam_account_password_policy.weak` — `password_reuse_prevention = 1` | 3.5.8 | `password_reuse` | **FAIL** |
-| 22 | `aws_s3_bucket.noncompliant` — no encryption | (SC family, out of scope) | evidence only | **FAIL** in spirit, not scored |
+| 22 | `aws_s3_bucket.noncompliant` — no encryption *configured* | (SC family, out of scope) | evidence only | PASS (see note) |
 
-12 PASS rows, 9 FAIL rows that are scored, plus one unscored.
+13 PASS rows, 8 FAIL rows that are scored, plus one unscored.
+
+### Note: two AWS defaults changed after this environment was designed
+
+Rows 13 and 22 were written expecting that a bare `aws_s3_bucket` comes out unprotected.
+AWS has since changed both defaults, so the "non-compliant" bucket is not actually
+non-compliant in those two respects:
+
+- **January 2023** — every new bucket gets SSE-S3 (AES256) server-side encryption by
+  default, so `get_bucket_encryption` returns a configuration instead of raising
+  `ServerSideEncryptionConfigurationNotFoundError`.
+- **April 2023** — every new bucket gets S3 Block Public Access enabled with all four
+  settings on, and ACLs disabled, so `get_public_access_block` returns a complete
+  configuration instead of raising `NoSuchPublicAccessBlockConfiguration`.
+
+The scanner reports PASS for 3.1.20 against this environment and it is right to. To
+restore the intended failure, add an `aws_s3_bucket_public_access_block` resource for the
+non-compliant bucket with all four settings set to `false`.
+
+Worth knowing: `moto` does not emulate either default, so the unit tests still exercise
+the FAIL path and still pass. The mock and the real service disagree, and the real service
+is the one that counts. This is the clearest argument in the project for validating
+against a real account and not only against mocks.
 
 Note row 11 against row 20/21: the same password policy produces a PASS and two FAILs.
 That is deliberate. "A password policy exists" and "the password policy is adequate" are
@@ -64,7 +86,7 @@ compliant bucket being correct.
 | 3.1.5 | `iam_least_privilege_admin` | **FAIL** | `nist171-test-user` (and `nist-admin`) hold AdministratorAccess directly |
 | 3.1.12 | `sg_no_unrestricted_admin_ingress` | **FAIL** | `nist171-test-open-ssh` allows 22 and 3389 from `0.0.0.0/0` |
 | 3.1.13 | `s3_requires_tls` | **FAIL** | The non-compliant bucket has no policy |
-| 3.1.20 | `s3_public_access_blocked` | **FAIL** | The non-compliant bucket has no public access block |
+| 3.1.20 | `s3_public_access_blocked` | PASS | AWS enables Block Public Access on new buckets by default (April 2023) |
 | 3.3.1 | `cloudtrail_enabled_multiregion` | PASS | Multi-region trail, logging enabled |
 | 3.3.2 | `cloudtrail_global_events` | PASS | `include_global_service_events = true` |
 | 3.3.2 | `no_shared_accounts_heuristic` | **FAIL** (likely) | Heuristic flags `nist-admin` for containing "admin" with no person's name |
@@ -107,7 +129,7 @@ Some verdicts come from how the account was set up in Part 2, not from anything 
 
 ## 4. Expected score
 
-Nine scored requirements fail. Using the DoD Assessment Methodology v1.2.1 point values:
+Eight scored requirements fail. Using the DoD Assessment Methodology v1.2.1 point values:
 
 | Requirement | Points | Note |
 |---|---|---|
@@ -115,13 +137,22 @@ Nine scored requirements fail. Using the DoD Assessment Methodology v1.2.1 point
 | 3.1.5 | 3 | |
 | 3.1.12 | 5 | |
 | 3.1.13 | 5 | |
-| 3.1.20 | 1 | |
 | 3.3.2 | 3 | via the shared-account heuristic |
 | 3.5.3 | 3 | partial credit, not the full 5 |
 | 3.5.7 | 1 | |
 | 3.5.8 | 1 | |
-| **Total deducted** | **27** | |
+| **Total deducted** | **26** | |
 
-Expected score: **110 − 27 = 83**, reported as partial, with the count of requirements
-actually assessed out of 110. Treat this as an estimate — it moves if a check errors out
-or if the heuristic does not fire. The number the tool prints is the real one.
+Expected score: **110 − 26 = 84**, reported as partial, with the count of requirements
+actually assessed out of 110.
+
+Treat that as an estimate. The largest uncertainty is the shared-account heuristic on
+3.3.2: if it does not fire, the deduction drops to 23 and the score rises to 87. A check
+that errors out against the real account would move it again. The number the tool prints
+is the real one.
+
+Requirements actually assessed — those with at least one automated finding that is not
+MANUAL or ERROR — should be 15 of 110: 3.1.1, 3.1.2, 3.1.5, 3.1.12, 3.1.13 and 3.1.20 in
+Access Control; 3.3.1, 3.3.2 and 3.3.8 in Audit and Accountability; 3.5.1, 3.5.2, 3.5.3,
+3.5.7, 3.5.8 and 3.5.10 in Identification and Authentication. Note that 3.1.20 still
+counts as assessed even though it passes — a PASS is a result, not a gap.
