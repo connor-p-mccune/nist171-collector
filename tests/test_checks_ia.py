@@ -23,6 +23,7 @@ from nist171.checks.ia import (
     password_reuse,
 )
 from nist171.models import Evidence, Verdict
+from nist171.scoring.sprs import compute_score
 
 NOW = datetime(2026, 9, 22, 12, 0, 0, tzinfo=UTC)
 
@@ -120,6 +121,16 @@ def test_users_identified_errors_when_the_call_was_denied():
     assert found.verdict is Verdict.ERROR
 
 
+def test_users_identified_has_no_fail_path_by_design():
+    # The one automated check with no FAIL test, deliberately. AWS can show that identities
+    # exist and can be listed; nothing it returns shows whether each belongs to an
+    # authorized person, so no evidence could justify a FAIL. Even an account with no IAM
+    # users (everyone signs in through SSO) is a PASS with the caveat, not a failure.
+    found = iam_users_identified(ev("iam", "users", []))
+    assert found.verdict is Verdict.PASS
+    assert "0 IAM user" in found.summary
+
+
 # =======================================================================================
 # 3.5.2 -- password_policy_exists
 # =======================================================================================
@@ -138,30 +149,56 @@ def test_weak_password_policy_still_counts_as_existing():
 
 
 # =======================================================================================
-# 3.5.3 -- mfa_privileged_users (partial credit)
+# 3.5.3 -- mfa_privileged_users (no partial credit in AWS)
 # =======================================================================================
 
 
-def test_privileged_user_without_mfa_deducts_three_when_mfa_exists_elsewhere():
+def test_privileged_user_without_mfa_costs_the_full_five_even_with_mfa_elsewhere():
+    # The 3-point tier needs MFA on every privileged and remote account. One admin
+    # without it rules that out, however many other accounts have MFA.
     evidence = merge(
         ev("iam", "credential_report", [row("alice", mfa=True), row("nist171-test-user")]),
         ev("iam", "attached_admin", admin("nist171-test-user")),
     )
     found = mfa_privileged_users(evidence)
     assert found.verdict is Verdict.FAIL
-    assert found.deduction_override == 3
+    assert found.deduction_override is None
     assert found.affected_resources == ["nist171-test-user"]
+    assert "full 5 points" in found.summary
 
 
-def test_no_mfa_anywhere_deducts_the_full_five():
+def test_no_mfa_anywhere_costs_the_full_five():
     evidence = merge(
         ev("iam", "credential_report", [row("alice"), row("nist171-test-user")]),
         ev("iam", "attached_admin", admin("nist171-test-user")),
     )
     found = mfa_privileged_users(evidence)
     assert found.verdict is Verdict.FAIL
-    assert found.deduction_override == 5
-    assert "no account in this environment has MFA at all" in found.summary
+    assert found.deduction_override is None
+
+
+def test_general_console_users_without_mfa_cost_the_full_five():
+    # Admins all have MFA, ordinary console users do not -- the case the methodology's
+    # 3-point tier describes. In AWS those users sign in remotely, so it does not apply.
+    report = [row("admin1", mfa=True, console=True), row("bob", console=True)]
+    found = mfa_all_users(ev("iam", "credential_report", report))
+    assert found.verdict is Verdict.FAIL
+    assert found.deduction_override is None
+    assert "remote access" in found.summary
+
+
+def test_3_5_3_scores_minus_five_for_the_terraform_environment():
+    # Regression test for the original bug, which deducted 3 here: an admin user without
+    # MFA while root has it is not "MFA for remote and privileged users".
+    evidence = merge(
+        ev("iam", "credential_report", [
+            row("<root_account>", mfa=True, console=True),
+            row("nist171-test-user"),
+        ]),
+        ev("iam", "attached_admin", admin("nist171-test-user")),
+    )
+    score = compute_score([mfa_privileged_users(evidence), mfa_all_users(evidence)])
+    assert score.unmet == [("3.5.3", 5)]
 
 
 def test_all_privileged_users_with_mfa_passes():

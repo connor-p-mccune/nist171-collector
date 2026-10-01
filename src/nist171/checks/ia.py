@@ -2,10 +2,14 @@
 
 Seven automated checks and five that no API can answer.
 
-This family carries the only partial-credit rule in the DoD methodology. Missing MFA on
-privileged accounts (3.5.3) costs five points when there is no MFA anywhere, and three
-when MFA exists for some accounts but not all -- so the check sets
-``deduction_override`` rather than letting the scoring engine apply the flat catalog value.
+3.5.3 (MFA) is one of two requirements where the DoD methodology allows partial credit:
+3 points instead of 5 when MFA is "implemented for remote and privileged users, but not
+the general user" (Annex A; section 5(e)(i)). That tier describes an on-premises pattern
+-- MFA on the VPN and on admin accounts, none on office desktops -- with no AWS
+equivalent. Every console sign-in to AWS is remote network access, so an account without
+MFA is always a remote account without MFA, and the 3-point condition cannot be met. Both
+MFA checks therefore deduct the full 5 points. The scoring engine still honors
+``deduction_override`` for partial-credit rules a future check can actually establish.
 """
 
 from __future__ import annotations
@@ -147,7 +151,7 @@ def password_policy_exists(evidence: EvidenceMap) -> Finding:
 
 
 def mfa_privileged_users(evidence: EvidenceMap) -> Finding:
-    """Privileged accounts must have MFA. Carries the methodology's partial-credit rule."""
+    """Privileged accounts, root included, must have MFA. A gap costs the full 5 points."""
     control, objective, name = "3.5.3", "3.5.3[b]", "mfa_privileged_users"
     report = raw_value(evidence, "iam", "credential_report")
     attached = raw_value(evidence, "iam", "attached_admin")
@@ -209,19 +213,14 @@ def mfa_privileged_users(evidence: EvidenceMap) -> Finding:
         )
 
     if without_mfa:
-        # DoD Assessment Methodology v1.2.1 partial credit: 5 points when MFA is absent
-        # entirely, 3 when it exists somewhere but not everywhere it is required.
-        mfa_anywhere = any(mfa_by_user.values())
-        if mfa_anywhere:
-            deduction, state = 3, "MFA is in use on some accounts but not on all privileged ones"
-        else:
-            deduction, state = 5, "no account in this environment has MFA at all"
-
+        # No partial credit: the methodology's 3-point tier requires MFA on every privileged
+        # and remote account, and these are privileged accounts without it.
         return finding(
             control, objective, name, Verdict.FAIL,
             f"{len(without_mfa)} privileged account(s) have no MFA: "
-            f"{', '.join(without_mfa)}. Partial credit applies: {state}, so the methodology "
-            f"deducts {deduction} points rather than the full 5."
+            f"{', '.join(without_mfa)}. This costs the full 5 points: the methodology's "
+            "3-point partial credit applies only when every privileged and remote account "
+            "has MFA."
             + (f" Privileged accounts that do have MFA: {', '.join(with_mfa)}." if with_mfa else "")
             + caveat,
             affected_resources=without_mfa,
@@ -232,7 +231,6 @@ def mfa_privileged_users(evidence: EvidenceMap) -> Finding:
                 "shrinks this finding at the same time."
             ),
             evidence=cited,
-            deduction_override=deduction,
         )
 
     return finding(
@@ -270,7 +268,9 @@ def mfa_all_users(evidence: EvidenceMap) -> Finding:
             f"{len(without_mfa)} of {len(console_users)} account(s) with console sign-in "
             f"have no MFA: {', '.join(without_mfa)}. 3.5.3 requires multifactor "
             "authentication for network access to non-privileged accounts as well as "
-            "privileged ones.",
+            "privileged ones. Console sign-in to AWS is remote access, so the methodology's "
+            "3-point partial credit (MFA for remote and privileged users only) does not "
+            "apply; the full 5 points are deducted.",
             affected_resources=without_mfa,
             remediation=(
                 "Assign an MFA device to each account, or remove console access from "

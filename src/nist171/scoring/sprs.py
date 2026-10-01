@@ -25,7 +25,7 @@ direction that cannot overstate compliance:
 * Several findings FAIL on one requirement -> points are subtracted ONCE, not per finding.
   The methodology scores requirements, not checks.
 * Several failing findings disagree on the deduction -> the LARGEST wins. Partial credit on
-  one aspect of 3.5.3 must not excuse a full failure on another.
+  one aspect of a requirement must not excuse a full failure on another.
 """
 
 from __future__ import annotations

@@ -94,7 +94,7 @@ compliant bucket being correct.
 | 3.3.8 | `cloudtrail_bucket_protected` | PASS | Trail bucket has versioning and a full public access block |
 | 3.5.1 | `iam_users_identified` | PASS | `list_users` succeeded (deliberately a weak check) |
 | 3.5.2 | `password_policy_exists` | PASS | The weak policy still counts as existing |
-| 3.5.3 | `mfa_privileged_users` | **FAIL** | Privileged users have no MFA; expect the 3-point partial deduction, not 5 |
+| 3.5.3 | `mfa_privileged_users` | **FAIL** | Privileged users have no MFA; the full 5 points (see the 3.5.3 note below) |
 | 3.5.3 | `mfa_all_users` | PASS | No user has a console password, so none needs MFA under this check |
 | 3.5.7 | `password_complexity` | **FAIL** | Length 8 (needs 14) and no character-class requirements |
 | 3.5.8 | `password_reuse` | **FAIL** | `PasswordReusePrevention = 1` (needs 24) |
@@ -138,16 +138,25 @@ Eight scored requirements fail. Using the DoD Assessment Methodology v1.2.1 poin
 | 3.1.12 | 5 | |
 | 3.1.13 | 5 | |
 | 3.3.2 | 3 | via the shared-account heuristic |
-| 3.5.3 | 3 | partial credit, not the full 5 |
+| 3.5.3 | 5 | no partial credit (see note) |
 | 3.5.7 | 1 | |
 | 3.5.8 | 1 | |
-| **Total deducted** | **26** | |
+| **Total deducted** | **28** | |
 
-Expected score: **110 − 26 = 84**, reported as partial, with the count of requirements
+### Note: 3.5.3 costs the full 5 points
+
+An earlier version of this file expected a 3-point partial deduction for 3.5.3, giving 84.
+That was wrong. The DoD methodology allows 3 points only when MFA is "implemented for
+remote and privileged users, but not the general user." Here a privileged user has no
+MFA, so the condition is not met and the full 5 points apply. In AWS the 3-point case
+cannot arise at all: every console sign-in is remote access, so any account without MFA
+is a remote account without MFA.
+
+Expected score: **110 − 28 = 82**, reported as partial, with the count of requirements
 actually assessed out of 110.
 
 Treat that as an estimate. The largest uncertainty is the shared-account heuristic on
-3.3.2: if it does not fire, the deduction drops to 23 and the score rises to 87. A check
+3.3.2: if it does not fire, the deduction drops to 25 and the score rises to 85. A check
 that errors out against the real account would move it again. The number the tool prints
 is the real one.
 

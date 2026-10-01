@@ -131,10 +131,10 @@ class Finding:
             the POA&M's remediation column.
         evidence: The evidence this judgment rests on.
         deduction_override: Points to subtract instead of the requirement's catalog
-            value. Used only where the DoD methodology defines partial credit -- today
-            that is 3.5.3, where missing MFA costs 5 points if there is no MFA at all but
-            only 3 if MFA exists for some accounts and not others. None means "use the
-            catalog value", which is the normal case.
+            value, for the methodology's partial-credit rules (3.5.3 and 3.13.11 in
+            Annex A). No current check sets it: 3.5.3's 3-point condition cannot arise in
+            AWS, as ``checks/ia.py`` explains. None means "use the catalog value", which
+            is the normal case.
     """
 
     control_id: str
