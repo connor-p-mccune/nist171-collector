@@ -1,7 +1,8 @@
-"""Reading a saved evidence folder back into Evidence objects.
+"""Writing evidence to disk and reading it back into Evidence objects.
 
 This is the seam between collection and assessment. Everything downstream of here works
-from files on disk, never from a live AWS connection.
+from files on disk, never from a live AWS connection. The writer and the reader live
+together so the file format is defined in exactly one place.
 
 Loading re-computes each item's SHA-256 and compares it to the value stored alongside it.
 Evidence that does not match what it claims to be is not evidence, so a mismatch is an
@@ -10,6 +11,7 @@ error rather than a warning.
 
 from __future__ import annotations
 
+import hashlib
 import json
 from datetime import datetime
 from pathlib import Path
@@ -22,6 +24,27 @@ MANIFEST_NAME = "manifest.json"
 
 class EvidenceIntegrityError(Exception):
     """Stored evidence does not match its recorded hash."""
+
+
+def write_evidence_file(path: Path | str, items: dict[str, Evidence]) -> Path:
+    """Write one collector's evidence as a JSON list.
+
+    Each element is that item's ``to_dict()`` plus the key it was collected under, so the
+    file can be read back into the same ``{key: Evidence}`` shape by :func:`load_evidence`.
+
+    Line endings are always ``\\n``. Python would otherwise write ``\\r\\n`` on Windows, and
+    the manifest's file hash for identical evidence would then depend on which operating
+    system saved it.
+    """
+    path = Path(path)
+    payload = [{"key": key, **evidence.to_dict()} for key, evidence in items.items()]
+    path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8", newline="\n")
+    return path
+
+
+def file_sha256(path: Path | str) -> str:
+    """SHA-256 of a file's bytes exactly as stored on disk, as lowercase hex."""
+    return hashlib.sha256(Path(path).read_bytes()).hexdigest()
 
 
 def latest_evidence_dir(root: Path | str = "evidence") -> Path:
@@ -105,8 +128,6 @@ def verify_manifest(folder: Path | str) -> list[str]:
     Returns a list of problems, empty when the evidence set is intact. This checks the
     set -- missing or added files -- where :func:`load_evidence` checks contents.
     """
-    import hashlib
-
     folder = Path(folder)
     manifest = load_manifest(folder)
     if not manifest:
@@ -121,8 +142,7 @@ def verify_manifest(folder: Path | str) -> list[str]:
         if not path.is_file():
             problems.append(f"{name}: listed in manifest but missing from the folder")
             continue
-        actual = hashlib.sha256(path.read_bytes()).hexdigest()
-        if actual != record["sha256"]:
+        if file_sha256(path) != record["sha256"]:
             problems.append(f"{name}: file hash does not match the manifest")
 
     for path in folder.glob("*.json"):

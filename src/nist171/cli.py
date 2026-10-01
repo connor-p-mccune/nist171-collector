@@ -9,7 +9,6 @@ Three subcommands, matching the three stages of the pipeline:
 
 from __future__ import annotations
 
-import hashlib
 import json
 import sys
 from collections import Counter
@@ -35,9 +34,11 @@ from nist171.collectors.base import VERSION as COLLECTOR_VERSION
 from nist171.collectors.base import Collector
 from nist171.evidence_io import (
     EvidenceIntegrityError,
+    file_sha256,
     latest_evidence_dir,
     load_evidence,
     load_manifest,
+    write_evidence_file,
 )
 from nist171.models import Evidence, Finding
 from nist171.reporting.html import manifest_sha256, write_report
@@ -74,21 +75,6 @@ COLLECTORS: tuple[type[Collector], ...] = (
 def _run_stamp() -> str:
     """UTC timestamp used as the evidence folder name. Sorts chronologically as text."""
     return datetime.now(UTC).strftime("%Y%m%dT%H%M%SZ")
-
-
-def _write_evidence_file(path: Path, items: dict[str, Evidence]) -> None:
-    """Write one collector's evidence as a JSON list.
-
-    Each element is that item's ``to_dict()`` plus the key it was collected under, so the
-    file can be read back into the same ``{key: Evidence}`` shape later.
-    """
-    payload = [{"key": key, **evidence.to_dict()} for key, evidence in items.items()]
-    path.write_text(json.dumps(payload, indent=2, default=str), encoding="utf-8")
-
-
-def _file_sha256(path: Path) -> str:
-    """SHA-256 of a file's bytes as written to disk."""
-    return hashlib.sha256(path.read_bytes()).hexdigest()
 
 
 def _plural(count: int, singular: str, plural: str | None = None) -> str:
@@ -231,11 +217,11 @@ def _run_collectors(
             continue
 
         path = run_dir / f"{collector.name}.json"
-        _write_evidence_file(path, items)
+        write_evidence_file(path, items)
         files.append(
             {
                 "name": path.name,
-                "sha256": _file_sha256(path),
+                "sha256": file_sha256(path),
                 "bytes": path.stat().st_size,
                 "items": len(items),
                 "keys": list(items),
@@ -274,7 +260,7 @@ def _write_manifest(
         "failed_collectors": failures,
     }
     (run_dir / MANIFEST_NAME).write_text(
-        json.dumps(manifest, indent=2, default=str), encoding="utf-8"
+        json.dumps(manifest, indent=2, default=str), encoding="utf-8", newline="\n"
     )
 
 
