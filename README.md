@@ -1,5 +1,8 @@
 # nist171-collector
 
+[![CI](https://github.com/connor-p-mccune/nist171-collector/actions/workflows/ci.yml/badge.svg)](https://github.com/connor-p-mccune/nist171-collector/actions/workflows/ci.yml)
+[![Coverage](https://img.shields.io/badge/coverage-95%25-brightgreen)](#development)
+
 A Python command-line tool that inspects an AWS account with read-only API calls, checks it against the parts of NIST SP 800-171 Rev 2 that cloud configuration can prove, and produces hashed evidence, a partial SPRS score, a POA&M and OSCAL assessment results.
 
 ![HTML report generated from the sample evidence set](docs/report-screenshot.png)
@@ -149,7 +152,7 @@ ruff check .      # lint: line length 100, rule sets E, F, I, UP
 mypy              # type check of src/
 ```
 
-Tests run against `moto`, an in-memory AWS mock, and a hand-made evidence set, so no test can reach a real account. Coverage is currently about 95%.
+Tests run against `moto`, an in-memory AWS mock, and a hand-made evidence set, so no test can reach a real account. Coverage is currently about 95%; the coverage badge is updated by hand. GitHub Actions runs ruff, mypy and the test suite on every push and pull request, and [gitleaks](https://github.com/gitleaks/gitleaks) scans for committed secrets: new commits on every push, the full history weekly and on demand.
 
 ```
 catalog/        controls.yaml (all 110 requirements, Annex A points) and objectives.yaml (SP 800-171A)
